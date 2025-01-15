@@ -1,123 +1,53 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Redeemed</title>
-<link rel="icon" type="image/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-<script src="/bootstrap/js/bootstrap.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Redeemed Rewards</title>
+	<link rel="icon" type="image/png" href="/images/nfc.png">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<script src="/bootstrap/js/bootstrap.js"></script>
 </head>
 
 <body>
 	<div th:replace="fragments/style"></div>
-	<div th:replace="fragments/rewards_style"></div>
+	<div th:replace="fragments/redeem_style"></div>
 	<div class="container">
-		<div class="tnt">
-			<div class="points-container">
-				<span>My Point(s): </span> <a href="/history"> <img class="icon"
-					src="images/point.png" />
-				</a>
-			</div>
-			<div class="label-container">
-				<div class="label">
-					<a href="/rewards" class="link"> <img
-						style="margin-left: 15px; width: 40px; height: 40px;"
-						src="images/gift.png">
-						<p>Rewards</p>
-					</a>
-				</div>
-				<div class="label" style="border-bottom: 2px solid #06B48B;">
-					<a href="/redeem" class="link"> <img
-						style="margin-left: 15px; width: 60px; height: 40px;"
-						src="images/redeem.png">
-						<p>Redeemed</p>
-					</a>
-				</div>
-			</div>
+		<h2 class="text-center mb-4">Rewards Redeemed</h2>
 
-			<!-- Filter Section -->
-			<div class="filter">
-				<select name="rewards" id="rewards" class="form-select"
-					onchange="filterRewards(this.value)">
-					<option value="">Filter By</option>
-					<option value="asc">Lowest to Highest</option>
-					<option value="desc">Highest to Lowest</option>
-				</select>
-			</div>
-			<!-- User have not log in -->
-			<div sec:authorize="!isAuthenticated()">
-				<p class="msg">
-					<button class="history" onclick="window.location.href='/login'">
-						<span>Log In</span> <img class="img" src="images/login.png" />
-					</button>
+		<div class="text-center mb-4">
+			<h5>Total Points Used for Redeeming Rewards: <span th:text="${totalPoints}"></span> <img class="icon"
+					src="images/point.png" /></h5>
+		</div>
 
-					to view the rewards you have redeemed!
-				</p>
-			</div>
-			<!-- User logged in but have not redeem -->
-			<div sec:authorize="isAuthenticated()">
-				<div th:if="${#lists.isEmpty(pointsHistory)}">
-					<p class="msg">
-						You have not redeemed any rewards yet! <br /> Psss: earn points
-						by participating in
-						<button class="history"
-							onclick="window.location.href='/activities'">
-							<span>Activities</span> <img class="img" src="images/point.png" />
-						</button>
-						to redeem
-						<button class="history" onclick="window.location.href='/rewards'">
-							<span>Rewards</span> <img class="img" src="images/gift.png" />
-						</button>
-					</p>
-				</div>
-			</div>
+		<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
+			<div class="row">
+				<div th:each="reward : ${redeemedRewards}" class="col-md-4 mb-4">
+					<div class="card">
+						<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
+							alt="Reward Image" class="card-img-top reward-image">
 
-			<!-- Display Rewards with Redeem Option -->
-			<div id="overflow">
-				<div class="tnt-row">
-
-					<div class="card" th:each="reward : ${listRewards}">
-						<img
-							th:src="@{'/uploads/rewards/' + ${reward.rewardsId} + '/' + ${reward.imgName}}"
-							class="card-img-top">
 						<div class="card-body">
-							<h5 class="card-title" th:text="${reward.description}"></h5>
+							<h5 class="card-title" th:text="${reward.rewards.description}"></h5>
 							<p class="card-text">
-								Points Required: <span th:text="${reward.pointsRequired}"></span>
-								<img src="/images/point.png" style="width: 20px; height: 20px;">
+								<strong>Amount of Points Used:</strong> <span th:text="${reward.memberPoints}"></span>
+								points<br>
+								<strong>Redeemed On:</strong> <span th:text="${reward.redeemedDate}"></span>
 							</p>
-							<p class="card-text">
-								Quantity: <span th:text="${reward.quantity}"></span>
-							</p>
-							<p class="card-text">
-								Status: <span th:text="${reward.status}"></span>
-							</p>
-							<div>
-								<a
-									th:href="@{/redeem/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									class="btn-redeem">Redeem</a>
-							</div>
-							<div style="margin-top: 20px;">
-								<a
-									th:href="@{/rewards/edit/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									style="color: black; text-decoration: none;">Edit</a> | <a
-									th:href="@{/rewards/delete/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									style="color: black; text-decoration: none;">Delete</a>
-							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+
+		<div th:if="${redeemedRewards == null or redeemedRewards.isEmpty()}">
+			<p class="text-center">You have not redeemed any rewards yet.</p>
+		</div>
+
+		<div class="text-center mt-4">
+			<a th:href="@{/rewards}" class="btn btn-secondary">Back to Rewards</a>
+		</div>
 	</div>
-	<!-- JavaScript -->
-	<script>
-		function filterRewards(order) {
-			const currentUrl = new URL(window.location.href);
-			currentUrl.searchParams.set('filter', order);
-			window.location.href = currentUrl.toString();
-		}
-	</script>
 </body>
 
 </html>
