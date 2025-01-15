@@ -54,11 +54,11 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				.requestMatchers("/members/*/addPoints", "/members/*","/login").permitAll() // Allow public access to addPoints
+				.requestMatchers("/members/*/addPoints", "/members/*").permitAll() // Allow public access to addPoints
 																					// URLs
 				.requestMatchers("/rewards/add", "/rewards/edit/*", "/rewards/delete/*", "/rewards/save",
 						"/activities/add", "/activities/edit/*", "/activities/delete/*", "/activities/save", "/members",
-						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save" )
+						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save","/login" )
 				.hasRole("ADMIN")
 				.requestMatchers("/", "/leaderboard", "/history", "/rewards", "/redeem", "/activities", "/more",
 						"/avatar", "/profile", "/guide", "/feedback", "/forget", "/images/*")
