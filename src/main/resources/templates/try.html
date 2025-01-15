@@ -1,0 +1,136 @@
+<!DOCTYPE HTML> 
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Member</title>
+<link rel="icon" type="image/png" href="/img/nfc.png">
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<style>
+#thankyouMessage {
+	display: none;
+	position: fixed;
+	top: -100px;
+	/* Initially hidden above the viewport */
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #d4edda;
+	color: #155724;
+	padding: 20px;
+	border: 1px solid #c3e6cb;
+	border-radius: 5px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: top 0.5s ease-in-out;
+}
+
+#okButton {
+	margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="tnt">
+			<div th:replace="fragments/style"></div>
+			<i>Add member <img src="/images/member.png" class="tnt-icon"></i>
+			<form class="needs-validation" th:action="@{/members/save}"
+				th:object="${member}" method="post" enctype="multipart/form-data"
+				novalidate>
+				<div>
+					<label class="label-tnt" for="avatar_select">Avatar</label> 
+					<select class="input-tnt" id="avatar_select" th:field="*{imagesName}" required>
+						<option value="">Select your avatar</option>
+						<option value="Rabbit">Rabbit</option>
+						<option value="Penguin">Penguin</option>
+						<option value="Duck">Duck</option>
+						<option value="Dog">Dog</option>
+						<option value="Rat">Rat</option>
+						<option value="Cat">Cat</option>
+					</select>
+				</div>
+				<div>
+					<label for="member_name" class="label-tnt">Member Name </label> <input
+						id="member_name" type="text" class="input-tnt" th:field="*{name}"
+						required />
+					<div class="invalid-feedback">Please enter a valid name</div>
+					<p class="text-danger" th:if="${#fields.hasErrors('name')}"
+						th:errors="*{name}"></p>
+				</div>
+				<div>
+					<label for="member_username" class="label-tnt"> Username </label> <input
+						id="member_username" type="text" class="input-tnt"
+						th:field="*{username}" required />
+				</div>
+				<div>
+					<label for="member_password" class="label-tnt"> Password </label> <input
+						id="member_password" type="password" class="input-tnt"
+						th:field="*{password}" required />
+				</div>
+				<div>
+					<label for="member_email" class="label-tnt"> Email </label> <input
+						id="member_email" type="email" class="input-tnt"
+						th:field="*{email}" required />
+				</div>
+				<div>
+					<label for="member_role" class="label-tnt">Role </label> <select
+						id="member_role" class="input-tnt" th:field="*{role}" required>
+						<option value="">Select member's role</option>
+						<option value="ROLE_ADMIN">ROLE_ADMIN</option>
+						<option value="ROLE_USER">ROLE_USER</option>
+					</select>
+				</div>
+				<div class="mt-3">
+					<button type="submit" class="btn">Add Member</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Success Message -->
+	<div id="thankyouMessage">
+		<p>Member added successfully!</p>
+		<button id="okButton" class="btn btn-success">Bring me back
+			to Leaderboard</button>
+	</div>
+	<script> 
+  // Handle form submission 
+  document.getElementById('addMember').addEventListener('submit', async function (event) { 
+   event.preventDefault(); // Prevent default form submission 
+ 
+   // Collect form data 
+   const formData = new FormData(this); 
+ 
+   try { 
+    // Send form data to the server using fetch 
+    const response = await fetch('/members/save', { 
+     method: 'POST', 
+     body: formData 
+    }); 
+ 
+    if (response.ok) { 
+     // Display success message and slide it down 
+     const thankyouMessage = document.getElementById('thankyouMessage'); 
+     thankyouMessage.style.display = 'block'; 
+ 
+     // Slide the notification down 
+     setTimeout(() => { 
+      thankyouMessage.style.top = '20px'; // Slide down 
+     }, 50); 
+ 
+     // Handle OK button click 
+     document.getElementById('okButton').addEventListener('click', function () { 
+      // Redirect to the leaderboard page after clicking OK 
+      window.location.href = '/'; // Adjust URL as needed 
+     }); 
+    } else { 
+     alert('Failed to add member. Please try again.'); 
+    } 
+   } catch (error) { 
+    console.error('Error adding member:', error); 
+    alert('An error occurred while adding the member. Please try again later.'); 
+   } 
+  }); 
+ </script>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile Details</title>
+<link rel="icon" type="image/png" href="/images/nfc.png">
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<style>
+.pfp-img {
+	background-color: white;
+	border-radius: 50%;
+	width: 120px;
+	height: 120px;
+	position: relative;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+</style>
+</head>
+<body>
+	<div th:replace="fragments/style"></div>
+	<div class="container">
+		<div class="tnt" style="background-color: transparent; border:none;">
+			<i>My Profile Details <img src="/images/profile.png"
+				class="tnt-icon"></i>
+			<div class="tnt-row">
+				<div class="card">
+					<p class="card-text">
+						<img th:src="${member.avatar}" alt="Avatar" class="card-img" />
+					</p>
+					<p class="card-text">
+						Email: <span th:text="${member.email}"></span>
+					</p>
+					<p class="card-text">
+						Username: <span th:text="${member.username}"></span>
+					</p>
+					<p class="card-text">
+						Point(s): <span th:text="${member.points}"></span>
+						<img
+								src="/images/point.png" class="icon">
+					</p>
+					<a th:href="@{/profile/edit}" class="btn">Edit Profile</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

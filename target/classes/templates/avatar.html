@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile Details</title>
+<link rel="icon" type="image/png" href="/img/nfc.png">
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<style>
+.pfp {
+	width: 150px;
+	height: 150px;
+	border-radius: 8px;
+	margin: 10px;
+}
+
+.ribbon {
+	background-color: #836953;
+	color: white;
+	width: 100px;
+	font-size: 15px;
+	padding: 5px;
+	position: absolute;
+	right: -10px;
+	top: -12px;
+	text-align: center;
+	border-radius: 25px;
+}
+
+</style>
+</head>
+<body>
+	<div th:replace="fragments/style"></div>
+	<div th:replace="fragments/more_style"></div>
+	<div class="container">
+		<div class="tnt">
+			<i>My Profile Details <img src="/images/profile.png"
+				class="tnt-icon"></i>
+			<div id="overflow">
+				<div class="tnt-row" style="margin-top: 20px;">
+
+					<div class="card">
+						<input type="radio" name="image" value="1"> <img
+							src="avatar/rabbit.jpg" alt="Rabbit" class="pfp">
+						<p class="ribbon">RABBIT</p>
+					</div>
+
+					<div class="card">
+						<input type="radio" name="image" value="2"> <img
+							src="avatar/penguin.jpg" alt="Penguin" class="pfp">
+						<p class="ribbon">PENGUIN</p>
+					</div>
+
+					<div class="card">
+						<input type="radio" name="image" value="3"> <img
+							src="avatar/duck.jpg" alt="Duck" class="pfp">
+						<p class="ribbon">DUCK</p>
+					</div>
+
+					<div class="card">
+						<input type="radio" name="image" value="4"> <img
+							src="avatar/dog.jpg" alt="Dog" class="pfp">
+						<p class="ribbon">DOG</p>
+					</div>
+
+					<div class="card">
+						<input type="radio" name="image" value="5"> <img
+							src="avatar/rat.jpg" alt="Rat" class="pfp">
+						<p class="ribbon">RAT</p>
+					</div>
+
+					<div class="card">
+						<input type="radio" name="image" value="6"> <img
+							src="avatar/cat.jpg" alt="Cat" class="pfp">
+						<p class="ribbon">CAT</p>
+					</div>
+
+				</div>
+				<div class="text-center">
+					<a href="/profile" target="_self" class="btn">Next</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+
+
+
