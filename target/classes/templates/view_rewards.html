@@ -1,41 +1,34 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rewards</title>
-<link rel="icon" type="image/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-<script src="/bootstrap/js/bootstrap.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Rewards</title>
+	<link rel="icon" type="image/png" href="/images/nfc.png">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<script src="/bootstrap/js/bootstrap.js"></script>
 </head>
+
 <body>
 	<div th:replace="fragments/style"></div>
 	<div th:replace="fragments/rewards_style"></div>
 	<div class="container">
 		<div class="tnt">
-			<!-- <div class="points-container">
-				<span>My Point(s): </span> <a href="/history"> <img class="icon"
-					src="images/point.png" />
+			<div class="points-container">
+				<span>My Point(s): </span> <a href="/history"> <img class="icon" src="images/point.png" />
 				</a>
-			</div> -->
-			 <div class="points-container" sec:authorize="isAuthenticated()">
-                <span>My Points: <span th:text="${memberPoints}"></span></span>
-                <a href="/history"> 
-                    <img class="icon" src="images/point.png" />
-                </a>
-            </div>
+			</div>
 			<div class="label-container">
 				<div class="label" style="border-bottom: 2px solid #06B48B;">
-					<a href="/rewards" class="link"> <img
-						style="margin-left: 15px; width: 40px; height: 40px;"
-						src="images/gift.png">
+					<a href="/rewards" class="link"> <img style="margin-left: 15px; width: 40px; height: 40px;"
+							src="images/gift.png">
 						<p>Rewards</p>
 					</a>
 				</div>
 
 				<div class="label">
-					<a href="/redeem" class="link"> <img
-						style="margin-left: 15px; width: 60px; height: 40px;"
-						src="images/redeem.png">
+					<a href="/redeem" class="link"> <img style="margin-left: 15px; width: 60px; height: 40px;"
+							src="images/redeem.png">
 						<p>Redeemed</p>
 					</a>
 				</div>
@@ -47,22 +40,24 @@
 
 			<!-- Filter Section -->
 			<div class="filter">
-				<select name="rewards" id="rewards" class="form-select"
-					onchange="filterRewards(this.value)">
+				<select name="rewards" id="rewards" class="form-select" onchange="filterRewards(this.value)">
 					<option value="">Filter By</option>
-					<option value="asc">(Points) Lowest to Highest </option>
-					<option value="desc">(Points) Highest to Lowest </option>
+					<option value="asc">Lowest to Highest</option>
+					<option value="desc">Highest to Lowest</option>
 				</select>
 			</div>
 			<!-- Display Rewards with Redeem Option -->
 			<div id="overflow">
 				<div class="tnt-row">
 					<div class="card" th:each="reward : ${listRewards}">
-						<img
-							th:src="@{'/uploads/rewards/' + ${reward.rewardsId} + '/' + ${reward.imgName}}"
+						<img th:src="@{'/uploads/rewards/' + ${reward.rewardsId} + '/' + ${reward.imgName}}"
 							class="card-img">
 						<div>
-							<p th:text="${reward.description}"></p>
+							<p>
+								<a th:href="@{/rewards/view/{rewardsId}(rewardsId=${reward.rewardsId})}"
+									th:text="${reward.description}" class="text-decoration-none text-dark">
+								</a>
+							</p>
 							<p>
 								Points Required: <span th:text="${reward.pointsRequired}"></span>
 								<img src="/images/point.png" class="icon">
@@ -74,18 +69,16 @@
 								Status: <span th:text="${reward.status}"></span>
 							</p>
 							<div>
-								<a
-									th:href="@{/redeem/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									class="btn-rewards">Redeem</a>
+								<a th:href="@{/redeem/process/{rewardsId}(rewardsId=${reward.rewardsId})}"
+									onclick="return confirmRedeem()" class="btn-rewards">Redeem</a>
 							</div>
 							<div class="end">
-								<a sec:authorize="hasRole('ROLE_ADMIN')"
-									th:href="@{/rewards/edit/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									class="link">Edit |</a> <a
-									sec:authorize="hasRole('ROLE_ADMIN')"
-									th:href="@{/rewards/delete/{rewardsId}(rewardsId=${reward.rewardsId})}"
+								<a th:href="@{/rewards/edit/{rewardsId}(rewardsId=${reward.rewardsId})}"
+									class="link">Edit |</a>
+								<a th:href="@{/rewards/delete/{rewardsId}(rewardsId=${reward.rewardsId})}"
 									class="link">Delete</a>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -99,6 +92,10 @@
 			const currentUrl = new URL(window.location.href);
 			currentUrl.searchParams.set('filter', order);
 			window.location.href = currentUrl.toString();
+		}
+
+		function confirmRedeem() {
+			return confirm('You can only redeem this reward once. Are you sure you want to redeem this reward?');
 		}
 	</script>
 </body>
