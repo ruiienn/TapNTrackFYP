@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,82 +34,111 @@ import jakarta.validation.Valid;
 
 @Controller
 public class RewardsController {
-	
+
 	@Autowired
 	private RewardsRepository rewardsRepository;
-	
+
+	@Autowired
+	private MemberRewardsRepository memberRewardsRepository;
+
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	MemberDetailsService memberDetailsService;
+
+	@Autowired
+	private RewardsService rewardsService;
+
+	@Autowired
+	private MemberRewardsService memberRewardsService;
 	
 	@Autowired
-	private HistoryRepository historyRepository;
+	private MemberService memberService;
 
-	
 	@GetMapping("/rewards")
-	public String viewRewards(Model model) {
-	    // Fetch all rewards
-	    List<Rewards> listRewards = rewardsRepository.findAll();
+	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model) {
 
-	    // Fetch a generic member's points (for instance, a public user or guest)
-	    Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
-	    if (guestMember != null) {
-	        model.addAttribute("memberPoints", guestMember.getPoints());
-	    } else {
-	        model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
-	    }
+		List<Rewards> rewards;
 
-	    // Pass rewards list to the model
-	    model.addAttribute("listRewards", listRewards);
+		if ("asc".equals(filter)) {
+			rewards = rewardsService.getRewardsSortedByPointsAsc();
+		} else if ("desc".equals(filter)) {
+			rewards = rewardsService.getRewardsSortedByPointsDesc();
+		} else {
+			rewards = rewardsService.getAllRewards();
+		}
 
-	    return "view_rewards";
+		model.addAttribute("listRewards", rewards);
+		return "view_rewards";
 	}
 
-
-	
 	@GetMapping("/rewards/add")
 	public String addRewards(Model model) {
 		model.addAttribute("rewards", new Rewards());
 		return "add_rewards";
 	}
-	
+
 	@GetMapping("/rewards/edit/{rewardsId}")
 	public String editRewards(@PathVariable("rewardsId") Integer rewardsId, Model model) {
-		Rewards rewards = rewardsRepository.findById(rewardsId).orElseThrow(() -> new IllegalArgumentException("Invalid reward ID:" + rewardsId));		
+		Rewards rewards = rewardsRepository.findById(rewardsId)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid reward ID:" + rewardsId));
 		model.addAttribute("rewards", rewards);
 		return "edit_rewards";
 	}
-	
+
 	@GetMapping("/rewards/view/{rewardsId}")
 	public String viewSingleReward(@PathVariable("rewardsId") Integer rewardsId, Model model) {
-	    Rewards rewards = rewardsRepository.findById(rewardsId)
-	            .orElseThrow(() -> new IllegalArgumentException("Invalid reward ID: " + rewardsId));
-	    model.addAttribute("rewards", rewards);
-	    return "view_single_reward";
+		Rewards rewards = rewardsRepository.findById(rewardsId)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid reward ID: " + rewardsId));
+		model.addAttribute("rewards", rewards);
+		return "view_single_reward";
 	}
-	
+
+	@GetMapping("/redeem")
+	public String viewRedeemHistory(Model model, Principal principal) {
+		String username = principal.getName();
+		Member member = memberRepository.findByUsername(username);
+
+		if (member != null) {
+			List<MemberRewards> redeemedRewards = memberRewardsRepository.findByMember(member);
+			model.addAttribute("redeemedRewards", redeemedRewards);
+		} else {
+			model.addAttribute("error", "Member not found.");
+		}
+
+		return "redeem";
+	}
+
 	@PostMapping("/rewards/save")
-	public String saveRewards(@Valid Rewards rewards, BindingResult result, @RequestParam("rewardsImage") MultipartFile imgFile) {
+	public String saveRewards(@Valid Rewards rewards, BindingResult result,
+			@RequestParam("rewardsImage") MultipartFile imgFile, Model model) {
+
+		if(rewardsService.existByDescription(rewards.getDescription())) {
+			model.addAttribute("errorMessage", "This reward already exists.");
+			return "add_rewards";
+		}
 		
-	    if (result.hasErrors()) {
-	        return "add_rewards";
-	    }
-	    
-	    if(rewards.getStatus() == null || rewards.getStatus().isEmpty()) {
-	    	rewards.setStatus("Available");
-	    }
-	    
-	    String imageName = imgFile.getOriginalFilename();
-	    rewards.setImgName(imageName);
-	    Rewards savedRewards = rewardsRepository.save(rewards);
-	    
-	    try {
-	    	String uploadDir = "uploads/rewards/" +savedRewards.getRewardsId();
-	    	Path uploadPath = Paths.get(uploadDir);
+		if (result.hasErrors()) {
+			return "add_rewards";
+		}
+
+		if (rewards.getStatus() == null || rewards.getStatus().isEmpty()) {
+			rewards.setStatus("Available");
+		}
+
+		String imageName = imgFile.getOriginalFilename();
+		rewards.setImgName(imageName);
+		Rewards savedRewards = rewardsRepository.save(rewards);
+
+		try {
+			String uploadDir = "uploads/rewards/" + savedRewards.getRewardsId();
+			Path uploadPath = Paths.get(uploadDir);
 			System.out.println("Directory path: " + uploadPath);
 			if (!Files.exists(uploadPath)) {
 
 				Files.createDirectories(uploadPath);
-				
+
 			}
 			Path fileToCreatePath = uploadPath.resolve(imageName);
 			System.out.println("File path: " + fileToCreatePath);
@@ -115,87 +146,89 @@ public class RewardsController {
 
 		} catch (IOException io) {
 			io.printStackTrace();
-	    }
-	    
-	    return "redirect:/rewards";
-	}
-	@GetMapping("/rewards/delete/{id}")
-	public String deleteRewards(@PathVariable("id") Integer id) {
-
-		rewardsRepository.deleteById(id);
+		}
 
 		return "redirect:/rewards";
 	}
+
+	@PostMapping("rewards/delete/{rewardsId}")
+	public String saveDeletedRewards(@PathVariable("rewardsId") Integer rewardsId) {
+		rewardsRepository.deleteById(rewardsId);
+		return "redirect:/rewards";
+	}
+
 	@PostMapping("/rewards/edit/{rewardsId}")
-	public String savedUpdatedRewards(@PathVariable("rewardsId") Integer rewardsId, @Valid Rewards rewards, 
-										BindingResult result, @RequestParam("rewardsImage") MultipartFile imgFile) {
-		if(result.hasErrors()) {
+	public String savedUpdatedRewards(@PathVariable("rewardsId") Integer rewardsId, @Valid Rewards rewards,
+			BindingResult result, @RequestParam("rewardsImage") MultipartFile imgFile) {
+		if (result.hasErrors()) {
 			return "edit_rewards";
 		}
-		
-		Rewards existingReward = rewardsRepository.findById(rewardsId).
-				orElseThrow(() -> new IllegalArgumentException("Invalid reward ID:" + rewardsId));
-		
+
+		Rewards existingReward = rewardsRepository.findById(rewardsId)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid reward ID:" + rewardsId));
+
 		existingReward.setDescription(rewards.getDescription());
 		existingReward.setQuantity(rewards.getQuantity());
 		existingReward.setPointsRequired(rewards.getPointsRequired());
-		
+
 		existingReward.setStatus(rewards.getStatus());
-		
-		if(!imgFile.isEmpty()) {
+
+		if (!imgFile.isEmpty()) {
 			String imageName = imgFile.getOriginalFilename();
 			existingReward.setImgName(imageName);
-			
+
 			try {
 				String uploadDir = "uploads/rewards/" + rewardsId;
 				Path uploadPath = Paths.get(uploadDir);
-				if(!Files.exists(uploadPath)) {
+				if (!Files.exists(uploadPath)) {
 					Files.createDirectories(uploadPath);
 				}
 				Path fileToCreatePath = uploadPath.resolve(imageName);
 				Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
-			}catch(IOException io) {
+			} catch (IOException io) {
 				io.printStackTrace();
 			}
 		}
-		
+
 		rewardsRepository.save(existingReward);
 		return "redirect:/rewards";
 
 	}
-	@GetMapping("/redeem")
-	  public String redeem() {
-	    return "redeem";
-	  }
-	
-		/*
-		 * @PostMapping("/rewards/redeem/{memberId}/{rewardId}") public String
-		 * redeemReward(@PathVariable("memberId") Integer memberId,
-		 * 
-		 * @PathVariable("rewardId") Integer rewardId) {
-		 * 
-		 * // Fetch the member using the member repository instance Member member =
-		 * memberRepository.findById(memberId) .orElseThrow(() -> new
-		 * IllegalArgumentException("Invalid member ID: " + memberId));
-		 * 
-		 * // Fetch the reward using the rewards repository instance Rewards reward =
-		 * rewardsRepository.findById(rewardId) .orElseThrow(() -> new
-		 * IllegalArgumentException("Invalid reward ID: " + rewardId));
-		 * 
-		 * // Check if the member has enough points to redeem the reward if
-		 * (member.getTotalPoints() < reward.getPointsRequired()) { throw new
-		 * IllegalArgumentException("Not enough points to redeem this reward."); }
-		 * 
-		 * // Deduct points from the member and save the updated member
-		 * member.setTotalPoints(member.getTotalPoints() - reward.getPointsRequired());
-		 * memberRepository.save(member); // Use instance of the repository
-		 * 
-		 * // Create a history record for the reward redemption History history = new
-		 * History(); history.setMember(member); history.setReward(reward);
-		 * history.setPoints(reward.getPointsRequired()); history.setAddition(false);
-		 * historyRepository.save(history);
-		 * 
-		 * return "redirect:/rewards"; }
-		 */
 
+	@GetMapping("/redeem/process/{rewardsId}")
+	public String processRedemption(@PathVariable int rewardsId, Model model, Principal principal) {
+		String username = principal.getName();
+
+		Member member = memberRepository.findByUsername(username);
+		if (member == null) {
+			model.addAttribute("error", "Member not found.");
+			return "redirect:/rewards";
+		}
+		Rewards rewards = rewardsRepository.findById(rewardsId);
+		if (rewards == null) {
+			model.addAttribute("error", "Reward not found.");
+			return "redirect:/rewards";
+		}
+
+		if (member.getPoints() >= rewards.getPointsRequired() && rewards.getQuantity() > 0) {
+			member.setPoints(member.getPoints() - rewards.getPointsRequired());
+			rewards.setQuantity(rewards.getQuantity() - 1);
+
+			MemberRewards memberRewards = new MemberRewards();
+			memberRewards.setMember(member);
+			memberRewards.setRewards(rewards);
+			memberRewards.setMemberPoints(rewards.getPointsRequired());
+			memberRewards.setRedeemedQty(1);
+			memberRewards.setRedeemedDate(LocalDate.now());
+
+			memberRewardsService.save(memberRewards);
+			memberDetailsService.save(member);
+			rewardsRepository.save(rewards);
+
+			return "redirect:/redeem";
+		} else {
+			model.addAttribute("error", "Insufficient points or reward out of stock.");
+			return "redirect:/rewards";
+		}
+	}
 }

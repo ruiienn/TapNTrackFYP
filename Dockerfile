@@ -3,6 +3,6 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim 
-COPY --from=build /target/tapntrack-0.0.1-SNAPSHOT.jar tapntrack.jar
+COPY --from=build /target/tapntrack_-0.0.1-SNAPSHOT.jar tapntrack_.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","tapntrack.jar"]
+ENTRYPOINT ["java","-jar","tapntrack_.jar"]

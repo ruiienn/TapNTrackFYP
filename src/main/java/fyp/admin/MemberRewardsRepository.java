@@ -11,19 +11,15 @@
  */
 
 package fyp.admin;
-
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RewardsRepository extends JpaRepository<Rewards, Integer>{
-	public Rewards findById(int rewardsId);
+public interface MemberRewardsRepository extends JpaRepository<MemberRewards, Integer>{
 
-	List<Rewards> findAllByOrderByPointsRequiredAsc();
-
-	List<Rewards> findAllByOrderByPointsRequiredDesc();
+	public List<MemberRewards> findByMember(Member member);
 	
-	Rewards findByDescription(String description);
+	public List<MemberRewards> findByRewards(Rewards rewards);
 }

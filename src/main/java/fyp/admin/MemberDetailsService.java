@@ -17,21 +17,27 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 
+
 /**
  * @author xandr
  *
  */
+
 public class MemberDetailsService implements UserDetailsService {
 
 	  @Autowired
-	  private MemberRepository memberRepository;
+	    private MemberRepository memberRepository;
 
-	  @Override
-	  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-	    Member member = memberRepository.findByUsername(username);
-	    if (member == null) {
-	      throw new UsernameNotFoundException("Could not find user");
+	    @Override
+	    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	        Member member = memberRepository.findByUsername(username);
+	        if (member == null) {
+	            throw new UsernameNotFoundException("Could not find user");
+	        }
+	        return new MemberDetails(member);
 	    }
-	    return new MemberDetails(member);
-	  }
+
+	    public Member save(Member member) {
+	        return memberRepository.save(member);
+	    }
 	}
