@@ -52,28 +52,35 @@ public class RewardsController {
 
 	@Autowired
 	private MemberRewardsService memberRewardsService;
-	
+
 	@Autowired
 	private MemberService memberService;
 
 	@GetMapping("/rewards")
-	 public String viewRewards(Model model) {
-	     // Fetch all rewards
-	     List<Rewards> listRewards = rewardsRepository.findAll();
+	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model) {
+		// Fetch all rewards
+		List<Rewards> rewards;
 
-	     // Fetch a generic member's points (for instance, a public user or guest)
-	     Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
-	     if (guestMember != null) {
-	         model.addAttribute("memberPoints", guestMember.getPoints());
-	     } else {
-	         model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
-	     }
+		// Fetch a generic member's points (for instance, a public user or guest)
+		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
+		if (guestMember != null) {
+			model.addAttribute("memberPoints", guestMember.getPoints());
+		} else {
+			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
+		}
+		if ("asc".equals(filter)) {
+			rewards = rewardsService.getRewardsSortedByPointsAsc();
+		} else if ("desc".equals(filter)) {
+			rewards = rewardsService.getRewardsSortedByPointsDesc();
+		} else {
+			rewards = rewardsService.getAllRewards();
+		}
 
-	     // Pass rewards list to the model
-	     model.addAttribute("listRewards", listRewards);
+		// Pass rewards list to the model
+		model.addAttribute("listRewards", rewards);
 
-	     return "view_rewards";
-	 }
+		return "view_rewards";
+	}
 
 	@GetMapping("/rewards/add")
 	public String addRewards(Model model) {
@@ -116,11 +123,11 @@ public class RewardsController {
 	public String saveRewards(@Valid Rewards rewards, BindingResult result,
 			@RequestParam("rewardsImage") MultipartFile imgFile, Model model) {
 
-		if(rewardsService.existByDescription(rewards.getDescription())) {
+		if (rewardsService.existByDescription(rewards.getDescription())) {
 			model.addAttribute("errorMessage", "This reward already exists.");
 			return "add_rewards";
 		}
-		
+
 		if (result.hasErrors()) {
 			return "add_rewards";
 		}
@@ -233,25 +240,25 @@ public class RewardsController {
 			return "redirect:/rewards";
 		}
 	}
-	
+
 	@GetMapping("/redeem")
-	 public String redeem(Model model) {
+	public String redeem(Model model) {
 
-	     // Fetch all rewards
-	     List<Rewards> listRewards = rewardsRepository.findAll();
+		// Fetch all rewards
+		List<Rewards> listRewards = rewardsRepository.findAll();
 
-	     // Fetch a generic member's points (for instance, a public user or guest)
-	     Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
+		// Fetch a generic member's points (for instance, a public user or guest)
+		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
 
-	     if (guestMember != null) {
-	         model.addAttribute("memberPoints", guestMember.getPoints());
-	     } else {
-	         model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
-	     }
+		if (guestMember != null) {
+			model.addAttribute("memberPoints", guestMember.getPoints());
+		} else {
+			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
+		}
 
-	     // Pass rewards list to the model
-	     model.addAttribute("listRewards", listRewards);
+		// Pass rewards list to the model
+		model.addAttribute("listRewards", listRewards);
 
-	     return "redeem";  // This returns the view named 'redeem'
-	 }
+		return "redeem"; // This returns the view named 'redeem'
+	}
 }
