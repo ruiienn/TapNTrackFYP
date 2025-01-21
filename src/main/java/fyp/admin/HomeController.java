@@ -37,10 +37,6 @@ public class HomeController {
     public String showHistoryPage(Model model) {
         List<Member> members = memberRepository.findAll(); // Fetch all members
         model.addAttribute("members", members); // Add members to model to show points history
-        
-        // Optionally, include member's history here as well
-        // List<History> histories = historyRepository.findAll(); // Fetch all histories
-        // model.addAttribute("historyList", histories); // Add history to model
 
         return "history"; // Return the history view
     }

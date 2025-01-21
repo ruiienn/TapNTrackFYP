@@ -14,8 +14,10 @@
 	<div th:replace="fragments/rewards_style"></div>
 	<div class="container">
 		<div class="tnt">
-			<div class="points-container">
-				<span>My Point(s): </span> <a href="/history"> <img class="icon" src="images/point.png" />
+			<div class="points-container" sec:authorize="isAuthenticated()">
+				<span>My Points: <span th:text="${memberPoints}"></span></span>
+				<a href="/history">
+					<img class="icon" src="images/point.png" />
 				</a>
 			</div>
 			<div class="label-container">

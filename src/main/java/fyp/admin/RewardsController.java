@@ -57,21 +57,23 @@ public class RewardsController {
 	private MemberService memberService;
 
 	@GetMapping("/rewards")
-	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model) {
+	 public String viewRewards(Model model) {
+	     // Fetch all rewards
+	     List<Rewards> listRewards = rewardsRepository.findAll();
 
-		List<Rewards> rewards;
+	     // Fetch a generic member's points (for instance, a public user or guest)
+	     Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
+	     if (guestMember != null) {
+	         model.addAttribute("memberPoints", guestMember.getPoints());
+	     } else {
+	         model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
+	     }
 
-		if ("asc".equals(filter)) {
-			rewards = rewardsService.getRewardsSortedByPointsAsc();
-		} else if ("desc".equals(filter)) {
-			rewards = rewardsService.getRewardsSortedByPointsDesc();
-		} else {
-			rewards = rewardsService.getAllRewards();
-		}
+	     // Pass rewards list to the model
+	     model.addAttribute("listRewards", listRewards);
 
-		model.addAttribute("listRewards", rewards);
-		return "view_rewards";
-	}
+	     return "view_rewards";
+	 }
 
 	@GetMapping("/rewards/add")
 	public String addRewards(Model model) {

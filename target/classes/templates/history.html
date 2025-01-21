@@ -1,91 +1,93 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Points History</title>
-<link rel="icon" type="image/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Points History</title>
+	<link rel="icon" type="image/png" href="/images/nfc.png">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
+
 <body>
-    <div th:replace="fragments/style"></div>
-    <div th:replace="fragments/history_style"></div>
-    <div class="container">
-        <div class="tnt">
-            <div style="padding-top: 15px;">
-                <i> Points History <img src="/images/history.png" class="tnt-icon"></i>
-            </div>
-            <!-- <div class="points">
+	<div th:replace="fragments/style"></div>
+	<div th:replace="fragments/history_style"></div>
+	<div class="container">
+		<div class="tnt">
+			<div style="padding-top: 15px;">
+				<i> Points History <img src="/images/history.png" class="tnt-icon"></i>
+			</div>
+			<!-- <div class="points">
                 Display the logged-in user's points
                 <span>My Points: <span th:text="${memberPoints}"></span></span>
                 <a href="/history"> 
                     <img class="icon" src="images/point.png" />
                 </a>
             </div> -->
-            <div class="points" sec:authorize="isAuthenticated()">
-                <span>My Points: <span th:text="${memberPoints}"></span></span>
-                <a href="/history"> 
-                    <img class="icon" src="images/point.png" />
-                </a>
-            </div>
+			<div class="points" sec:authorize="isAuthenticated()">
+				<span>My Points: <span th:text="${memberPoints}"></span></span>
+				<a href="/history">
+					<img class="icon" src="images/point.png" />
+				</a>
+			</div>
+			<!-- User not logged in -->
+			<div sec:authorize="!isAuthenticated()">
+				<p class="msg">
+					<button class="history" onclick="window.location.href='/login'">
+						<span>Log In</span> <img class="img" src="images/login.png" />
+					</button>
+					to view your points history
+				</p>
+			</div>
 
-            <!-- User not logged in -->
-            <div sec:authorize="!isAuthenticated()">
-                <p class="msg">
-                    <button class="history" onclick="window.location.href='/login'">
-                        <span>Log In</span> <img class="img" src="images/login.png" />
-                    </button>
-                    to view your points history
-                </p>
-            </div>
+			<!-- User logged in -->
+			<div sec:authorize="isAuthenticated()">
+				<!-- No history available -->
+				<div th:if="${#lists.isEmpty(historyList)}">
+					<p class="msg">
+						No history yet! <br /> Pssst: earn points by participating in
+						<button class="history" onclick="window.location.href='/activities'">
+							<span>Activities</span> <img class="img" src="images/point.png" />
+						</button>
+						to exchange for attractive
+						<button class="history" onclick="window.location.href='/rewards'">
+							<span>Rewards</span> <img class="img" src="images/gift.png" />
+						</button>
+					</p>
+				</div>
 
-            <!-- User logged in -->
-            <div sec:authorize="isAuthenticated()">
-                <!-- No history available -->
-                <div th:if="${#lists.isEmpty(historyList)}">
-                    <p class="msg">
-                        No history yet! <br /> Pssst: earn points by participating in
-                        <button class="history" onclick="window.location.href='/activities'">
-                            <span>Activities</span> <img class="img" src="images/point.png" />
-                        </button>
-                        to exchange for attractive
-                        <button class="history" onclick="window.location.href='/rewards'">
-                            <span>Rewards</span> <img class="img" src="images/gift.png" />
-                        </button>
-                    </p>
-                </div>
+				<!-- History available -->
+				<div th:unless="${#lists.isEmpty(historyList)}">
+					<div class="history">
+						<div th:each="history : ${historyList}">
+							<div class="details">
+								<!-- Points change: Earned or Redeemed -->
+								<p th:class="${history.pointsChange > 0 ? 'earned' : 'deduct'}"
+									th:text="${history.pointsChange > 0 ? '+' + history.pointsChange : '-' + history.pointsChange}">
+								</p>
 
-                <!-- History available -->
-                <div th:unless="${#lists.isEmpty(historyList)}">
-                    <div class="history">
-                        <div th:each="history : ${historyList}">
-                            <div class="details">
-                                <!-- Points change: Earned or Redeemed -->
-                                <p th:class="${history.pointsChange > 0 ? 'earned' : 'deduct'}"
-                                    th:text="${history.pointsChange > 0 ? '+' + history.pointsChange : '-' + history.pointsChange}"></p>
+								<!-- Description of the activity or reward -->
+								<p class="description" th:text="${history.description}"></p>
 
-                                <!-- Description of the activity or reward -->
-                                <p class="description"
-                                    th:text="${history.description}"></p>
+								<!-- Points value -->
+								<p th:text="'Points: ' + ${history.pointsChange}"></p>
 
-                                <!-- Points value -->
-                                <p th:text="'Points: ' + ${history.pointsChange}"></p>
+								<!-- Status: Earned or Redeemed -->
+								<p th:text="${history.pointsChange > 0 ? 'Earned' : 'Redeemed'}"></p>
 
-                                <!-- Status: Earned or Redeemed -->
-                                <p th:text="${history.pointsChange > 0 ? 'Earned' : 'Redeemed'}"></p>
+								<!-- Display activity or reward type -->
+								<p th:if="${history.activity != null}" class="activity-name"
+									th:text="'Activity: ' + ${history.activity.name}"></p>
+								<p th:if="${history.rewards != null}" class="reward-name"
+									th:text="'Reward: ' + ${history.rewards.name}"></p>
 
-                                <!-- Display activity or reward type -->
-                                <p th:if="${history.activity != null}" class="activity-name"
-                                    th:text="'Activity: ' + ${history.activity.name}"></p>
-                                <p th:if="${history.rewards != null}" class="reward-name"
-                                    th:text="'Reward: ' + ${history.rewards.name}"></p>
-
-                                <img src="/images/point.png" class="history-img" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+								<img src="/images/point.png" class="history-img" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+
 </html>
