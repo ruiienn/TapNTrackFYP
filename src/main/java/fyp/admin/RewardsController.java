@@ -233,4 +233,25 @@ public class RewardsController {
 			return "redirect:/rewards";
 		}
 	}
+	
+	@GetMapping("/redeem")
+	 public String redeem(Model model) {
+
+	     // Fetch all rewards
+	     List<Rewards> listRewards = rewardsRepository.findAll();
+
+	     // Fetch a generic member's points (for instance, a public user or guest)
+	     Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
+
+	     if (guestMember != null) {
+	         model.addAttribute("memberPoints", guestMember.getPoints());
+	     } else {
+	         model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
+	     }
+
+	     // Pass rewards list to the model
+	     model.addAttribute("listRewards", listRewards);
+
+	     return "redeem";  // This returns the view named 'redeem'
+	 }
 }

@@ -35,10 +35,16 @@ public class HomeController {
     
     @GetMapping("/history")
     public String showHistoryPage(Model model) {
-        List<Member> members = memberRepository.findAll(); // Fetch all members
-        model.addAttribute("members", members); // Add members to model to show points history
+       
 
-        return "history"; // Return the history view
+        // Fetch a generic member's points (for instance, a public user or guest)
+        Member guestMember = memberRepository.findByUsername("guest");  // Example of a default member
+        if (guestMember != null) {
+            model.addAttribute("memberPoints", guestMember.getPoints());
+        } else {
+            model.addAttribute("memberPoints", 0);  // Default points if guest member doesn't exist
+        }
+        return "history";  // Return the history view
     }
 
     @GetMapping("/403")
