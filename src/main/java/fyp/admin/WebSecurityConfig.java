@@ -54,7 +54,7 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				.requestMatchers("/members/*/addPoints", "/members/*").permitAll() // Allow public access to addPoints
+				.requestMatchers("/members/*/addPoints", "/members/{id}").permitAll() // Allow public access to addPoints
 																					// URLs
 				.requestMatchers("/rewards/add", "/rewards/edit/*", "/rewards/delete/*", "/rewards/save",
 						"/activities/add", "/activities/edit/*", "/activities/delete/*", "/activities/save", "/members",

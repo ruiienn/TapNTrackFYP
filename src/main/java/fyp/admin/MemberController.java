@@ -15,6 +15,7 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,7 +57,7 @@ public class MemberController {
 		// Return the Thymeleaf template name
 		return "view_member"; // This is your leaderboard page
 	}
-
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/members/add")
 	public String addMember(Model model) {
 		if (!model.containsAttribute("message")) {

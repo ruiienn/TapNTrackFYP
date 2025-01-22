@@ -103,38 +103,53 @@ public class RewardsController {
 		model.addAttribute("rewards", rewards);
 		return "view_single_reward";
 	}
-
+	
 	@GetMapping("/redeem")
-	public String redeem(Model model, Principal principal) {
-		// Fetch all rewards
-		List<Rewards> listRewards = rewardsRepository.findAll();
-		model.addAttribute("listRewards", listRewards);
+	public String viewRedeemHistory(Model model, Principal principal) {
+		String username = principal.getName();
+		Member member = memberRepository.findByUsername(username);
 
-		// Check if a user is authenticated (principal is not null)
-		if (principal != null) {
-			String username = principal.getName();
-			Member member = memberRepository.findByUsername(username);
-
-			// If member exists, fetch their points
-			if (member != null) {
-				model.addAttribute("memberPoints", member.getPoints());
-			} else {
-				model.addAttribute("memberPoints", 0); // Default points for invalid member
-				model.addAttribute("error", "Member not found.");
-			}
+		if (member != null) {
+			List<MemberRewards> redeemedRewards = memberRewardsRepository.findByMember(member);
+			model.addAttribute("redeemedRewards", redeemedRewards);
 		} else {
-			// If the user is not authenticated, show generic guest points
-			Member guestMember = memberRepository.findByUsername("guest");
-
-			if (guestMember != null) {
-				model.addAttribute("memberPoints", guestMember.getPoints());
-			} else {
-				model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
-			}
+			model.addAttribute("error", "Member not found.");
 		}
 
-		return "redeem"; // Return the 'redeem' view
+		return "redeem";
 	}
+
+//	@GetMapping("/redeem")
+//	public String redeem(Model model, Principal principal) {
+//		// Fetch all rewards
+//		List<Rewards> listRewards = rewardsRepository.findAll();
+//		model.addAttribute("listRewards", listRewards);
+//
+//		// Check if a user is authenticated (principal is not null)
+//		if (principal != null) {
+//			String username = principal.getName();
+//			Member member = memberRepository.findByUsername(username);
+//
+//			// If member exists, fetch their points
+//			if (member != null) {
+//				model.addAttribute("memberPoints", member.getPoints());
+//			} else {
+//				model.addAttribute("memberPoints", 0); // Default points for invalid member
+//				model.addAttribute("error", "Member not found.");
+//			}
+//		} else {
+//			// If the user is not authenticated, show generic guest points
+//			Member guestMember = memberRepository.findByUsername("guest");
+//
+//			if (guestMember != null) {
+//				model.addAttribute("memberPoints", guestMember.getPoints());
+//			} else {
+//				model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
+//			}
+//		}
+//
+//		return "redeem"; // Return the 'redeem' view
+//	}
 
 	@PostMapping("/rewards/save")
 	public String saveRewards(@Valid Rewards rewards, BindingResult result,

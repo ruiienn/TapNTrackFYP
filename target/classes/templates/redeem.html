@@ -11,7 +11,7 @@
 
 <body>
 	<div th:replace="fragments/style"></div>
-	<div th:replace="fragments/redeem_style"></div>
+	<div th:replace="fragments/rewards_style"></div>
 	<div class="container">
 		<div class="container">
 			<div class="tnt">
@@ -42,13 +42,13 @@
 				</div>
 
 				<!-- Filter Section -->
-				<div class="filter">
+				<!--<div class="filter">
 					<select name="rewards" id="rewards" class="form-select" onchange="filterRewards(this.value)">
 						<option value="">Filter By</option>
 						<option value="asc">Lowest to Highest</option>
 						<option value="desc">Highest to Lowest</option>
 					</select>
-				</div>
+				</div>-->
 				<!-- Back to Rewards Button -->
 				<div sec:authorize="isAuthenticated()" class="text-center">
 					<a href="/rewards" class="btn-add">Back to Rewards</a>
@@ -91,35 +91,35 @@
 					<h5>Total Points Used for Redeeming Rewards: <span th:text="${totalPoints}"></span> <img
 							class="icon" src="images/point.png" /></h5>
 				</div>
+				<div id="overflow">
+					<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
+						<div class="row">
+							<div th:each="reward : ${redeemedRewards}" class="col-md-4 mb-4">
+								<div class="card">
+									<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
+										alt="Reward Image" class="card-img-top reward-image">
 
-				<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
-					<div class="row">
-						<div th:each="reward : ${redeemedRewards}" class="col-md-4 mb-4">
-							<div class="card">
-								<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
-									alt="Reward Image" class="card-img-top reward-image">
-
-								<div class="card-body">
-									<h5 class="card-title" th:text="${reward.rewards.description}"></h5>
-									<p class="card-text">
-										<strong>Amount of Points Used:</strong> <span
-											th:text="${reward.memberPoints}"></span>
-										points<br>
-										<strong>Redeemed On:</strong> <span th:text="${reward.redeemedDate}"></span>
-									</p>
+									<div class="card-body">
+										<h5 class="card-title" th:text="${reward.rewards.description}"></h5>
+										<p class="card-text">
+											<strong>Amount of Points Used:</strong> <span
+												th:text="${reward.memberPoints}"></span>
+											points<br>
+											<strong>Redeemed On:</strong> <span th:text="${reward.redeemedDate}"></span>
+										</p>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-
 				<div th:if="${redeemedRewards == null or redeemedRewards.isEmpty()}">
 					<p class="text-center">You have not redeemed any rewards yet.</p>
 				</div>
 
-				<div class="text-center mt-4">
+				<!--<div class="text-center mt-4">
 					<a th:href="@{/rewards}" class="btn btn-secondary">Back to Rewards</a>
-				</div>
+				</div>-->
 			</div>
 </body>
 
