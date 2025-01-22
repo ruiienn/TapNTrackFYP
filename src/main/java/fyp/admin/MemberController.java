@@ -57,7 +57,6 @@ public class MemberController {
 		// Return the Thymeleaf template name
 		return "view_member"; // This is your leaderboard page
 	}
-	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/members/add")
 	public String addMember(Model model) {
 		if (!model.containsAttribute("message")) {

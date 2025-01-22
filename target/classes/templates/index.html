@@ -20,7 +20,7 @@
 	<div th:replace="fragments/style"></div>
 	<div th:replace="fragments/index_style"></div>
 	<div class="container">
-		<a href="/members/add" class="visitor" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">Add
+		<a href="/members/add" class="visitor" sec:authorize="hasRole('ROLE_ADMIN')">Add
 			Member</a>
 		<div class="tnt">
 			<i> Leaderboard <img src="/images/leaderboard.png" class="tnt-icon"></i>
