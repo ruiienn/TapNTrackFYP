@@ -105,18 +105,35 @@ public class RewardsController {
 	}
 
 	@GetMapping("/redeem")
-	public String viewRedeemHistory(Model model, Principal principal) {
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
+	public String redeem(Model model, Principal principal) {
+		// Fetch all rewards
+		List<Rewards> listRewards = rewardsRepository.findAll();
+		model.addAttribute("listRewards", listRewards);
 
-		if (member != null) {
-			List<MemberRewards> redeemedRewards = memberRewardsRepository.findByMember(member);
-			model.addAttribute("redeemedRewards", redeemedRewards);
+		// Check if a user is authenticated (principal is not null)
+		if (principal != null) {
+			String username = principal.getName();
+			Member member = memberRepository.findByUsername(username);
+
+			// If member exists, fetch their points
+			if (member != null) {
+				model.addAttribute("memberPoints", member.getPoints());
+			} else {
+				model.addAttribute("memberPoints", 0); // Default points for invalid member
+				model.addAttribute("error", "Member not found.");
+			}
 		} else {
-			model.addAttribute("error", "Member not found.");
+			// If the user is not authenticated, show generic guest points
+			Member guestMember = memberRepository.findByUsername("guest");
+
+			if (guestMember != null) {
+				model.addAttribute("memberPoints", guestMember.getPoints());
+			} else {
+				model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
+			}
 		}
 
-		return "redeem";
+		return "redeem"; // Return the 'redeem' view
 	}
 
 	@PostMapping("/rewards/save")
@@ -240,25 +257,25 @@ public class RewardsController {
 			return "redirect:/rewards";
 		}
 	}
-
-	@GetMapping("/redeem")
-	public String redeem(Model model) {
-
-		// Fetch all rewards
-		List<Rewards> listRewards = rewardsRepository.findAll();
-
-		// Fetch a generic member's points (for instance, a public user or guest)
-		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
-
-		if (guestMember != null) {
-			model.addAttribute("memberPoints", guestMember.getPoints());
-		} else {
-			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
-		}
-
-		// Pass rewards list to the model
-		model.addAttribute("listRewards", listRewards);
-
-		return "redeem"; // This returns the view named 'redeem'
-	}
+//
+//	@GetMapping("/redeem")
+//	public String redeem(Model model) {
+//
+//		// Fetch all rewards
+//		List<Rewards> listRewards = rewardsRepository.findAll();
+//
+//		// Fetch a generic member's points (for instance, a public user or guest)
+//		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
+//
+//		if (guestMember != null) {
+//			model.addAttribute("memberPoints", guestMember.getPoints());
+//		} else {
+//			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
+//		}
+//
+//		// Pass rewards list to the model
+//		model.addAttribute("listRewards", listRewards);
+//
+//		return "redeem"; // This returns the view named 'redeem'
+//	}
 }
