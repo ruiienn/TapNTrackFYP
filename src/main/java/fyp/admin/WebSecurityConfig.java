@@ -54,14 +54,14 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				.requestMatchers("/members/*/addPoints", "/members/{id}").permitAll() // Allow public access to addPoints
-																					// URLs
+//				.requestMatchers("/members/*/addPoints", "/members/{id}").permitAll() // Allow public access to addPoints
+//																					// URLs
 				.requestMatchers("/rewards/add", "/rewards/edit/*", "/rewards/delete/*", "/rewards/save",
 						"/activities/add", "/activities/edit/*", "/activities/delete/*", "/activities/save", "/members",
 						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save","/login" )
 				.hasRole("ADMIN")
 				.requestMatchers("/", "/leaderboard", "/history", "/rewards", "/redeem", "/activities", "/more",
-						"/avatar", "/profile", "/guide", "/feedback", "/forget", "/images/*")
+						"/avatar", "/profile", "/guide", "/feedback", "/forget", "/images/*","/members/*/addPoints", "/members/{id}")
 				.permitAll().requestMatchers("/bootstrap/*/*", "/uploads/**", "/avatar/**", "/images/**").permitAll()
 				.anyRequest().authenticated()) // Any other requests require authentication
 				.formLogin((login) -> login.loginPage("/login").permitAll().defaultSuccessUrl("/", true)) // Login page
