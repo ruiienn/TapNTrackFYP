@@ -1,75 +1,63 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Points Rewarded</title>
-<link rel="icon" type="image/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-<style>
-/* Styles for the popup */
-.popup {
-	display: none;
-	position: fixed;
-	background-color: #e0f7ea;
-	border: 1px solid #4caf50;
-	padding: 20px;
-	border-radius: 5px;
-	text-align: center;
-	z-index: 1000;
-}
 
-.popup.active {
-	display: block;
-}
-</style>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Points Rewarded</title>
+	<link rel="icon" type="image/png" href="/images/nfc.png">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<style>
+		/* Styles for the popup */
+		.popup {
+			display: none;
+			position: fixed;
+			background-color: #e0f7ea;
+			border: 1px solid #4caf50;
+			padding: 20px;
+			border-radius: 5px;
+			text-align: center;
+			z-index: 1000;
+		}
+
+		.popup.active {
+			display: block;
+		}
+	</style>
 </head>
+
 <body>
 	<div th:replace="fragments/style"></div>
 	<div class="container">
-	<div class="tnt">
-		<i> Points Rewarded <img src="/images/point.png" class="tnt-icon"></i>
-		<form id="addActivityForm" class="needs-validation"
-			th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}"
-			method="post" enctype="multipart/form-data" novalidate>
-			<div>
-				<!-- Activity Dropdown -->
-				<label for="activityForm" class="label-tnt">Activity</label> 
-				<select id="activityForm" class="input-tnt" name="activityForm" required>
-					<option value="" disabled selected>Select activity</option>
-					<th:block th:each="activity : ${activitiesList}">
-						<option th:value="${activity.id}" th:text="${activity.activity}"></option>
-					</th:block>
-				</select>
-				<div class="invalid-feedback">Please select a valid activity.</div>
+		<h1>Add Points Rewarded</h1>
+		<form th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
+			<!-- Display member details -->
+			<p>Member: <span th:text="${pointsRewarded.member.username}"></span></p>
 
-				<!-- Booth Dropdown -->
-				<label for="boothForm" class="label-tnt">Booth</label> 
-				<select id="boothForm" class="input-tnt" name="boothForm" required>
-					<option value="" disabled selected>Select booth</option>
-					<th:block th:each="booth : ${boothsList}">
-						<option th:value="${booth}" th:text="${booth}"></option>
-					</th:block>
-				</select>
-				<div class="invalid-feedback">Please select a valid booth.</div>
+			<!-- Activity selection -->
+			<label>Activity:</label>
+			<select th:field="*{activityForm}">
+				<option value="" disabled selected>Select activity</option>
+				<option th:each="activity : ${activitiesList}" th:value="${activity.activity}"
+					th:text="${activity.activity}">
+				</option>
+			</select>
 
-				<!-- Points Rewarded Dropdown -->
-				<label for="pointsRewardedForm" class="label-tnt">Points Rewarded</label> 
-				<select id="pointsRewardedForm" class="input-tnt"
-					name="pointsRewardedForm" required>
-					<option value="" disabled selected>Select points</option>
-					<option value="10">10</option>
-					<option value="20">20</option>
-					<option value="30">30</option>
-					<option value="40">40</option>
-					<option value="50">50</option>
-				</select>
-				<div class="invalid-feedback">Please select a valid points
-					value.</div>
-			</div>
+			<!-- Booth selection -->
+			<label>Booth:</label>
+			<select th:field="*{boothForm}">
+				<option value="" disabled selected>Select booth</option>
+				<option th:each="booth : ${boothsList}" th:value="${booth}" th:text="${booth}">
+				</option>
+			</select>
 
-			<button class="btn btn-primary mt-3" type="submit">Reward Points</button>
+			<!-- Points input -->
+			<label>Points:</label>
+			<input type="number" th:field="*{pointsRewardedForm}" required />
+
+			<!-- Submit button -->
+			<button type="submit">Reward Points</button>
 		</form>
-		</div>
+
 
 		<div class="popup" id="popup">
 			<p>Activity added successfully!</p>
@@ -79,43 +67,44 @@
 
 	<!-- Form Validation -->
 	<script>
-        (function () {
-            'use strict';
+		(function () {
+			'use strict';
 
-            // Fetch all the forms we want to apply custom validation to
-            var forms = document.querySelectorAll('.needs-validation');
+			// Fetch all the forms we want to apply custom validation to
+			var forms = document.querySelectorAll('.needs-validation');
 
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
+			Array.prototype.slice.call(forms)
+				.forEach(function (form) {
+					form.addEventListener('submit', function (event) {
+						if (!form.checkValidity()) {
+							event.preventDefault();
+							event.stopPropagation();
+						}
 
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-        })();
-    </script>
+						form.classList.add('was-validated');
+					}, false);
+				});
+		})();
+	</script>
 
 	<!-- Popup Handling -->
 	<script>
-        const form = document.getElementById('addActivityForm');
-        const popup = document.getElementById('popup');
+		const form = document.getElementById('addPointsForm');
+		const popup = document.getElementById('popup');
 
-        form.addEventListener('submit', function (event) {
-            // Prevent the default form submission
-            event.preventDefault();
+		form.addEventListener('submit', function (event) {
+			// Prevent the default form submission
+			event.preventDefault();
 
-            // Show the popup
-            popup.classList.add('active');
+			// Show the popup
+			popup.classList.add('active');
 
-            // Wait for 2 seconds, then submit the form and redirect
-            setTimeout(() => {
-                form.submit();
-            }, 2000);
-        });
-    </script>
+			// Wait for 2 seconds, then submit the form and redirect
+			setTimeout(() => {
+				form.submit();
+			}, 2000);
+		});
+	</script>
 </body>
+
 </html>
