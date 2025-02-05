@@ -15,7 +15,6 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,20 +44,15 @@ public class MemberController {
 
 	@GetMapping("/members")
 	public String viewMembers(Model model) {
-		// Fetch all members
-		List<Member> listMembers = memberRepository.findAll();
-
-		// Sort the list by points in descending order
-		listMembers.sort((m1, m2) -> Integer.compare(m2.getPoints(), m1.getPoints()));
-
-		// Add the sorted list to the model
-		model.addAttribute("listMembers", listMembers);
-
-		// Return the Thymeleaf template name
+		List<Member> listMembers = memberRepository.findAll(); // Fetch all members
+		listMembers.sort((m1, m2) -> Integer.compare(m2.getPoints(), m1.getPoints())); // Sort by points in descending
+																						// order
+		model.addAttribute("listMembers", listMembers); // Add the sorted list to the model
 		return "view_member"; // This is your leaderboard page
 	}
+
 	@GetMapping("/members/add")
-	public String addMember(Model model) {
+	public String showAddMemberForm(Model model) {
 		if (!model.containsAttribute("message")) {
 			model.addAttribute("message", null); // Default to null if no message exists
 		}
@@ -71,10 +65,15 @@ public class MemberController {
 
 	@PostMapping("/members/save")
 	public String saveMember(@Valid Member member, BindingResult bindingResult, Model model) {
-		// Check for validation errors
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("error", "Validation failed. Please check the form fields.");
 			return "add_member"; // Return to the add member form for correction
+		}
+
+		// Check if the username already exists
+		if (memberDetailsService.usernameExists(member.getUsername())) {
+			model.addAttribute("errorMessage", "Username already taken. Please choose another one.");
+			return "add_member"; // Return to the add member form with error
 		}
 
 		// Encrypt the password
@@ -91,13 +90,11 @@ public class MemberController {
 		// Save the member
 		Member savedMember = memberRepository.save(member);
 
-		 // Generate the unique link for adding points
-	    String uniqueLink = "https://tapntrackfyp.onrender.com/members/" + savedMember.getId() + "/addPoints";
+		// Generate the unique link for adding points
+		String uniqueLink = "https://tapntrackfyp.onrender.com/members/" + savedMember.getId() + "/addPoints";
 
-		// Add the unique link to the model
 		model.addAttribute("uniqueLink", uniqueLink);
 		model.addAttribute("success", "Member successfully added!");
-
 		return "add_member";
 	}
 
@@ -109,8 +106,8 @@ public class MemberController {
 	}
 
 	@PostMapping("/members/edit/{id}")
-	public String savedUpdatedMember(@PathVariable("id") Integer id, Member member) {
-		member.setPassword(memberRepository.getReferenceById(id).getPassword());
+	public String saveUpdatedMember(@PathVariable("id") Integer id, Member member) {
+		member.setPassword(memberRepository.getReferenceById(id).getPassword()); // Retain the original password
 		memberRepository.save(member);
 		return "redirect:/";
 	}
@@ -121,78 +118,66 @@ public class MemberController {
 		return "redirect:/members";
 	}
 
-	// View single member
 	@GetMapping("/members/{id}")
 	public String viewSingleMember(@PathVariable("id") Integer id, Model model) {
-
 		Member member = memberRepository.getReferenceById(id);
 		model.addAttribute("member", member);
-
 		return "view_single_member";
 	}
 
 	@GetMapping("/profile")
 	public String viewProfile(Model model, Principal principal) {
-		String username = principal.getName(); // Get the current logged-in user's username
+		String username = principal.getName(); // Get the logged-in user's username
 		Member member = memberRepository.findByUsername(username);
 		model.addAttribute("member", member);
-		return "profile"; // Thymeleaf template to view profile
+		return "profile";
 	}
 
-	// Add method to edit the current user's profile
 	@GetMapping("/profile/edit")
 	public String editProfile(Model model, Principal principal) {
 		String username = principal.getName();
 		Member member = memberRepository.findByUsername(username);
 		model.addAttribute("member", member);
-		return "edit_profile"; // Thymeleaf template to edit profile
+		return "edit_profile";
 	}
 
-	// Save edited profile details
 	@PostMapping("/profile/edit")
 	public String saveProfile(@ModelAttribute("member") Member member, Principal principal,
 			RedirectAttributes redirectAttributes) {
-		String username = principal.getName(); // Get the current logged-in user's username
+		String username = principal.getName();
 		Member existingMember = memberRepository.findByUsername(username);
 
-		// Make sure the existing member was found
 		if (existingMember == null) {
 			redirectAttributes.addFlashAttribute("error", "Member not found.");
-			return "redirect:/profile"; // Redirect back to the profile page
+			return "redirect:/profile";
 		}
 
-		// Keep the old password (don't overwrite it)
-		member.setPassword(existingMember.getPassword());
-
-		// You can also retain other necessary fields like the ID or role
-		member.setId(existingMember.getId()); // Don't overwrite the ID field
-
-		// Save the updated member details
-		memberRepository.save(member); // Save updated profile data
-
-		// Redirect back to profile page with a success message
+		member.setPassword(existingMember.getPassword()); // Retain the old password
+		member.setId(existingMember.getId()); // Retain the ID
+		memberRepository.save(member);
 		redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
 		return "redirect:/profile";
 	}
-	 @PostMapping("/members/{id}/addPoints")
-	  public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-	    try {
-	      memberService.addPoints(id, 10); // Add 10 points to the user
-	      redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-	    } catch (RuntimeException e) {
-	      redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-	    }
-	    return "redirect:/members"; // Redirect to the leaderboard
-	  }
 
-	  @GetMapping("/members/{id}/addPoints")
-	  public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-	    try {
-	      memberService.addPoints(id, 10); // Add 10 points to the user
-	      redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-	    } catch (RuntimeException e) {
-	      redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-	    }
-	    return "redirect:/members"; // Redirect to the leaderboard
-	  }
+	@PostMapping("/members/{id}/addPoints")
+	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+		try {
+			memberService.addPoints(id, 10); // Add 10 points to the user
+			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+		} catch (RuntimeException e) {
+			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+		}
+		return "redirect:/members"; // Redirect to the leaderboard
+	}
+
+	@GetMapping("/members/{id}/addPoints")
+	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+		try {
+			memberService.addPoints(id, 10); // Add 10 points to the user
+			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+		} catch (RuntimeException e) {
+			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+		}
+		return "redirect:/members"; // Redirect to the leaderboard
+	}
 }

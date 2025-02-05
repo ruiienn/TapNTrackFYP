@@ -8,11 +8,11 @@
 	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 	<script src="/bootstrap/js/bootstrap.js"></script>
 
-	<!-- Reload the page every 10 seconds -->
+	<!-- Reload the page every 15 seconds -->
 	<script>
 		setInterval(() => {
 			location.reload();
-		}, 15000); // 10000 milliseconds = 10 seconds
+		}, 15000); // 15000 milliseconds = 15 seconds
 	</script>
 </head>
 
@@ -20,53 +20,66 @@
 	<div th:replace="fragments/style"></div>
 	<div th:replace="fragments/index_style"></div>
 	<div class="container">
-		<a href="/members/add" class="visitor" sec:authorize="hasRole('ROLE_ADMIN')">Add Member</a>
-		<div class="tnt">
-			<div class="tnt">
-				<i> Leaderboard <img src="/images/leaderboard.png" class="tnt-icon"></i>
-				<!-- Leaderboard Entries -->
-				<!-- Top 3 Ranks Section -->
-				<div id="overflow">
-					<div class="tnt-row">
-						<div th:each="member, iterStat : ${topMembers}" th:if="${iterStat.index < 3}">
-							<div
-								th:class="${iterStat.index == 0 ? 'first' : (iterStat.index == 1 ? 'second' : 'third')}">
-								<!-- Display Trophy Icons for Top 3 -->
-								<img th:if="${iterStat.index == 0}" th:src="@{/images/first.png}" class="rank">
-								<img th:if="${iterStat.index == 1}" th:src="@{/images/second.png}" class="rank">
-								<img th:if="${iterStat.index == 2}" th:src="@{/images/third.png}" class="rank">
-								<div>
-									<!-- Avatar Image -->
-									<img th:src="${member.avatar}" alt="Avatar" class="pfp" />
+		<div class="fixed-container">
+			<!-- Tap N Track Logo -->
+			<a href="/" style="text-decoration: none;">
+				<img class="logo" th:src="@{/images/logo.png}" alt="Logo">
+			</a>
 
-									<!-- Username & Points -->
-									<p th:text="${member.username}">Username</p>
-									<div>
-										<span th:text="${member.points}">Points</span> <img src="/images/point.png"
-											class="icon">
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div th:each="member, iterStat : ${topMembers}" th:if="${iterStat.index >= 3}">
-								<div class="other">
-									<span class="placing" th:text="${iterStat.index + 1}"></span> <img
-										th:src="${member.avatar}" alt="Avatar" class="pfp">
-									<div class="username">
-										<span th:text="${member.username}"></span>
-										<div>
-											<span th:text="${member.points}">Points</span> <img src="/images/point.png"
-												class="icon">
-										</div>
-									</div>
+			<!-- Add Member Button (Visible only to admins) -->
+			<a href="/members/add" class="visitor" sec:authorize="hasRole('ROLE_ADMIN')"> Add Member </a>
+		</div>
+
+		<div class="tnt">
+			<i> Leaderboard <img src="/images/leaderboard.png" class="tnt-icon"></i>
+
+			<!-- Leaderboard Entries -->
+			<div id="overflow">
+				<div class="tnt-row">
+					<div th:each="member, iterStat : ${topMembers}" th:if="${iterStat.index < 3}">
+						<div th:class="${iterStat.index == 0 ? 'first' : (iterStat.index == 1 ? 'second' : 'third')}">
+							<!-- Display Trophy Icons for Top 3 -->
+							<img th:if="${iterStat.index == 0}" th:src="@{/images/first.png}" class="rank">
+							<img th:if="${iterStat.index == 1}" th:src="@{/images/second.png}" class="rank">
+							<img th:if="${iterStat.index == 2}" th:src="@{/images/third.png}" class="rank">
+
+							<!-- Avatar Image -->
+							<img th:src="${member.avatar}" alt="Avatar" class="pfp" />
+
+							<!-- Username & Points -->
+							<div>
+								<p th:text="${member.username}">Username</p>
+								<div class="score">
+									<span th:text="${member.points}">Points</span>
+									<img src="/images/point.png" class="icon">
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<div id="over">
+					<div style="display: flex; justify-content: center; align-items: center;">
+						<table
+							style="border-collapse: collapse; border-spacing: 10px; border-radius: 10px; border: 1px solid black;">
+							<tbody>
+								<tr th:each="member, iterStat : ${topMembers}" th:if="${iterStat.index >= 3}"
+									style="border: 1px solid black;">
+									<td th:text="${iterStat.index + 1}"></td>
+									<td><img th:src="${member.avatar}" alt="Avatar" class="pfp"></td>
+									<td th:text="${member.username}"></td>
+									<td>
+										<span th:text="${member.points}" style="margin-left: 50px;"></span>
+										<img src="/images/point.png" class="icon">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
+	</div>
 </body>
 
 </html>

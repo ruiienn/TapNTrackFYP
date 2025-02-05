@@ -7,7 +7,7 @@
 		background-image: url('/images/mushroom.png'), url('/images/pac.png');
 		background-repeat: no-repeat;
 		background-attachment: fixed;
-		background-position: right 5% top 6%, left bottom -1%;
+		background-position: right 5% top 7%, left bottom -1%;
 		background-size: 100px;
 		align-items: center;
 		justify-content: center;
@@ -30,8 +30,8 @@
 		z-index: 99;
 		font-size: 18px;
 		border: none;
-		color: white;
-		padding: 15px;
+		padding: 10px;
+		padding-bottom: 0;
 		border-radius: 4px;
 	}
 
@@ -110,13 +110,42 @@
 		z-index: 1002;
 	}
 
-	.logo {
-		display: block;
+	/* Wrapper for logo and visitor */
+	.fixed-container {
 		position: fixed;
-		width: 90px;
-		height: 90px;
 		top: 2%;
 		left: 8%;
+	}
+
+	.logo {
+		display: block;
+		width: 90px;
+		height: 90px;
+		margin-bottom: 20px;
+	}
+
+	.visitor {
+		background-color: #5184bf;
+		color: white;
+		text-decoration: none;
+		padding: 10px;
+		border-radius: 10px;
+		text-align: center;
+		display: inline-block;
+	}
+
+	.visitor:hover {
+		background-color: #E6E2D5;
+		color: #5184bf;
+	}
+
+
+	@media (max-width : 600px) {
+		.logo {
+			width: 70px;
+			height: 70px;
+			margin-bottom: 10px;
+		}
 	}
 
 	/* Main Content Container*/
@@ -131,9 +160,8 @@
 	.tnt {
 		/* 	background-color: #ececeb; 
 	border: 2px solid #06B48B;*/
-		border-radius: 30px;
-		width: 70%;
 		height: auto;
+		border-radius: 30px;
 		position: fixed;
 		top: 130px;
 		left: 15%;
@@ -256,24 +284,6 @@
 	}
 
 	.btn-member:hover {
-		background-color: #E6E2D5;
-		color: #5184bf;
-	}
-
-	/* Add visitor button for index */
-	.visitor {
-		background-color: #5184bf;
-		color: white;
-		text-decoration: none;
-		padding: 10px;
-		border-radius: 10px;
-		position: fixed;
-		left: 8%;
-		bottom: 82%;
-		text-align: center;
-	}
-
-	.visitor:hover {
 		background-color: #E6E2D5;
 		color: #5184bf;
 	}
@@ -408,61 +418,78 @@
 </style>
 </head>
 <header>
+	<!-- Back to Top button -->
 	<button onclick="topFunction()" id="myBtn" title="Go to top">
 		<img src="images/top.png" alt="Top" style="width: 20px; height: 20px;">
+		<p style="color:black;">Top</p>
 	</button>
+	<!-- Tap N Track logo -->
+	<div class="fixed-container">
+		<a href="/" style="text-decoration: none;"> <img class="logo" th:src="@{/images/logo.png}" alt="Logo">
+		</a>
+	</div>
+	<!-- Sidebar -->
 	<div id="mySidebar" class="sidebar">
-		<!-- Home -->
-		<a href="/" target="_self"> <img class="icon" th:src="@{/images/home.png}" /> <span class="text">Home</span>
-		</a>
-		<!-- Leaderboard -->
-		<a href="/leaderboard" target="_self"> <img class="icon" th:src="@{/images/leaderboard.png}" /> <span
-				class="text">Leaderboard</span>
-		</a>
-		<!-- Points History -->
-		<a href="/history" target="_self"> <img class="icon" th:src="@{/images/history.png}" /> <span
-				class="text">Points
-				History</span>
-		</a>
-		<!-- Rewards -->
-		<a href="/rewards" target="_self"> <img class="icon" th:src="@{/images/gift.png}" /> <span
-				class="text">Rewards</span>
-		</a>
-		<!-- Activities -->
-		<a href="/activities" target="_self"> <img class="icon" th:src="@{/images/point.png}" /> <span
-				class="text">Activities</span>
-		</a>
-		<!-- Members -->
-		<a sec:authorize="hasRole('ROLE_ADMIN')" href="/members" target="_self"> <img class="icon"
-				th:src="@{/images/member.png}" />
-			<span class="text">Members</span>
-		</a>
-		<!-- More -->
-		<a href="/more" target="_self"> <img class="icon" th:src="@{/images/more.png}" /> <span class="text">More</span>
-		</a>
-		<!-- Profile -->
-		<a sec:authorize="isAuthenticated()" href="/profile" target="_self">
-			<img class="icon" th:src="@{/images/profile.png}" /> <span class="text">Profile Details</span>
-		</a>
+    <!-- Home -->
+    <a href="/" target="_self">
+        <img class="icon" th:src="@{/images/home.png}" />
+        <span class="text">Home</span>
+    </a>
 
-		<div>
-			<!-- Log In - Displayed when the user is not authenticated -->
-			<a sec:authorize="!isAuthenticated()" href="/login" class="link">
-				<img class="icon" th:src="@{/images/login.png}" /> <span class="text">Log In</span>
-			</a>
+    <!-- Points History (Displayed only for users with ROLE_USER) -->
+    <a sec:authorize="!isAuthenticated()" href="/history" target="_self">
+        <img class="icon" th:src="@{/images/history.png}" />
+        <span class="text">Points History</span>
+    </a>
 
-			<!-- Log Out - Displayed when the user is authenticated -->
-			<a sec:authorize="isAuthenticated()" href="/logout" class="link"
-				onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
-				<img class="icon" th:src="@{/images/logout.png}" /> <span class="text">Log Out</span>
-			</a>
-			<form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
-		</div>
+    <!-- Rewards -->
+    <a href="/rewards" target="_self">
+        <img class="icon" th:src="@{/images/gift.png}" />
+        <span class="text">Rewards</span>
+    </a>
+
+    <!-- Activities -->
+    <a href="/activities" target="_self">
+        <img class="icon" th:src="@{/images/point.png}" />
+        <span class="text">Activities</span>
+    </a>
+
+    <!-- Members (Displayed only for admins when NOT logged in) -->
+    <a sec:authorize="!isAuthenticated() && hasRole('ROLE_ADMIN')" href="/members" target="_self">
+        <img class="icon" th:src="@{/images/member.png}" />
+        <span class="text">Members</span>
+    </a>
+
+    <!-- More -->
+    <a href="/more" target="_self">
+        <img class="icon" th:src="@{/images/more.png}" />
+        <span class="text">More</span>
+    </a>
+
+    <!-- Profile Details -->
+    <a sec:authorize="!isAuthenticated()" href="/profile" target="_self">
+        <img class="icon" th:src="@{/images/profile.png}" />
+        <span class="text">Profile Details</span>
+    </a>
+
+    <!-- Log In -->
+    <a sec:authorize="isAuthenticated()" href="/login" class="link">
+        <img class="icon" th:src="@{/images/login.png}" />
+        <span class="text">Log In</span>
+    </a>
+
+    <!-- Log Out -->
+    <a sec:authorize="!isAuthenticated()" href="/logout" class="link"
+        onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+        <img class="icon" th:src="@{/images/logout.png}" />
+        <span class="text">Log Out</span>
+    </a>
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+</div>
+
 	</div>
 	<div id="overlay" class="overlay" onclick="closeNav()"></div>
 	<button id="sidebarToggle" class="openbtn" onclick="toggleNav()">☰</button>
-	<a href="/" style="text-decoration: none;"> <img class="logo" th:src="@{/images/logo.png}">
-	</a>
 	<script>
 		// Sidebar Toggle Logic
 		function toggleNav() {

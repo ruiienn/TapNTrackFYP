@@ -57,17 +57,11 @@ public class RewardsController {
 	private MemberService memberService;
 
 	@GetMapping("/rewards")
-	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model) {
-		// Fetch all rewards
+	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model,
+			Principal principal) {
+
 		List<Rewards> rewards;
 
-		// Fetch a generic member's points (for instance, a public user or guest)
-		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
-		if (guestMember != null) {
-			model.addAttribute("memberPoints", guestMember.getPoints());
-		} else {
-			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
-		}
 		if ("asc".equals(filter)) {
 			rewards = rewardsService.getRewardsSortedByPointsAsc();
 		} else if ("desc".equals(filter)) {
@@ -76,8 +70,38 @@ public class RewardsController {
 			rewards = rewardsService.getAllRewards();
 		}
 
-		// Pass rewards list to the model
 		model.addAttribute("listRewards", rewards);
+
+		if (principal != null) {
+			String username = principal.getName();
+			Member member = memberRepository.findByUsername(username);
+			if (member != null) {
+				int redeemedToday = memberRewardsRepository.countByMemberAndRedeemedDate(member, LocalDate.now());
+				model.addAttribute("redeemedToday", redeemedToday); // Pass this to the view
+			}
+		}
+
+		// The same logic repeated to ensure no removal from either method
+		List<Rewards> rewardsSecond;
+
+		if ("asc".equals(filter)) {
+			rewardsSecond = rewardsService.getRewardsSortedByPointsAsc();
+		} else if ("desc".equals(filter)) {
+			rewardsSecond = rewardsService.getRewardsSortedByPointsDesc();
+		} else {
+			rewardsSecond = rewardsService.getAllRewards();
+		}
+
+		model.addAttribute("listRewardsSecond", rewardsSecond);
+
+		if (principal != null) {
+			String username = principal.getName();
+			Member member = memberRepository.findByUsername(username);
+			if (member != null) {
+				int redeemedTodaySecond = memberRewardsRepository.countByMemberAndRedeemedDate(member, LocalDate.now());
+				model.addAttribute("redeemedTodaySecond", redeemedTodaySecond); // Pass this to the view
+			}
+		}
 
 		return "view_rewards";
 	}
@@ -103,18 +127,39 @@ public class RewardsController {
 		model.addAttribute("rewards", rewards);
 		return "view_single_reward";
 	}
-	
+
 	@GetMapping("/redeem")
-	public String viewRedeemHistory(Model model, Principal principal) {
+	public String viewRedeemHistory(@RequestParam(value = "redeemedDate", required = false) String redeemedDate,
+			Model model, Principal principal) {
+		// First instance logic
 		String username = principal.getName();
 		Member member = memberRepository.findByUsername(username);
 
-		if (member != null) {
-			List<MemberRewards> redeemedRewards = memberRewardsRepository.findByMember(member);
-			model.addAttribute("redeemedRewards", redeemedRewards);
-		} else {
+		if (member == null) {
 			model.addAttribute("error", "Member not found.");
+			return "redeem";
 		}
+
+		List<MemberRewards> redeemedRewardsFirst;
+		if (redeemedDate != null && !redeemedDate.isEmpty()) {
+			LocalDate date = LocalDate.parse(redeemedDate);
+			redeemedRewardsFirst = memberRewardsRepository.findByMemberAndRedeemedDate(member, date);
+		} else {
+			redeemedRewardsFirst = memberRewardsRepository.findByMember(member);
+		}
+
+		model.addAttribute("redeemedRewardsFirst", redeemedRewardsFirst);
+
+		// Second instance logic
+		List<MemberRewards> redeemedRewardsSecond;
+		if (redeemedDate != null && !redeemedDate.isEmpty()) {
+			LocalDate date = LocalDate.parse(redeemedDate);
+			redeemedRewardsSecond = memberRewardsRepository.findByMemberAndRedeemedDate(member, date);
+		} else {
+			redeemedRewardsSecond = memberRewardsRepository.findByMember(member);
+		}
+
+		model.addAttribute("redeemedRewardsSecond", redeemedRewardsSecond);
 
 		return "redeem";
 	}
@@ -245,12 +290,26 @@ public class RewardsController {
 			model.addAttribute("error", "Member not found.");
 			return "redirect:/rewards";
 		}
+
 		Rewards rewards = rewardsRepository.findById(rewardsId);
 		if (rewards == null) {
 			model.addAttribute("error", "Reward not found.");
 			return "redirect:/rewards";
 		}
 
+		// Logic from the first method: Check reward availability and daily limit
+		if (rewards.getQuantity() <= 0 || !"Available".equals(rewards.getStatus())) {
+			model.addAttribute("error", "This reward is unavailable or out of stock.");
+			return "redirect:/rewards";
+		}
+
+		int redeemedToday = memberRewardsRepository.countByMemberAndRedeemedDate(member, LocalDate.now());
+		if (redeemedToday >= 3) {
+			model.addAttribute("error", "You have reached the maximum redemption limit of 3 rewards per day.");
+			return "redirect:/rewards";
+		}
+
+		// Logic from the second method: Check points and process redemption
 		if (member.getPoints() >= rewards.getPointsRequired() && rewards.getQuantity() > 0) {
 			member.setPoints(member.getPoints() - rewards.getPointsRequired());
 			rewards.setQuantity(rewards.getQuantity() - 1);
@@ -272,25 +331,4 @@ public class RewardsController {
 			return "redirect:/rewards";
 		}
 	}
-//
-//	@GetMapping("/redeem")
-//	public String redeem(Model model) {
-//
-//		// Fetch all rewards
-//		List<Rewards> listRewards = rewardsRepository.findAll();
-//
-//		// Fetch a generic member's points (for instance, a public user or guest)
-//		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
-//
-//		if (guestMember != null) {
-//			model.addAttribute("memberPoints", guestMember.getPoints());
-//		} else {
-//			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
-//		}
-//
-//		// Pass rewards list to the model
-//		model.addAttribute("listRewards", listRewards);
-//
-//		return "redeem"; // This returns the view named 'redeem'
-//	}
 }

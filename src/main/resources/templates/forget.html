@@ -1,34 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Change Password</title>
-<link rel="icon" type="images/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reset Password</title>
+    <link rel="icon" type="images/png" href="/images/nfc.png">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <style>
+        .form-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .form-container label {
+            margin-top: 10px;
+        }
+        .form-container input {
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-	<div th:replace="fragments/style"></div>
-	<div class="container">
-		<div class="tnt" style="height: 480px;">
-			<i>Change Password</i>
-			<form th:action="@{/login}" method="post">
-				<label for="password" class="label-tnt"> New Password</label> <input
-					type="password" class="input-tnt" id="password"
-					name="password" />
-				<label for="password" class="label-tnt"> Confirm Password</label> <input
-					type="password" class="input-tnt" id="password"
-					name="password" />
+    <div th:replace="fragments/style"></div>
+    <div class="container">
+        <div class="form-container">
+            <h2 class="text-center">Reset Your Password</h2>
 
-				<div th:if="${param.error}" class="alert alert-danger">Invalid
-					username and password.</div>
-				<div th:if="${param.logout}" class="alert alert-success">You
-					have been logged out.</div>
-				<div class="mt-3">
-					<button type="submit" class="btn">Change Password</button>
-				</div>
+            <!-- Step 1: Email Form -->
+            <div id="emailForm">
+                <form th:action="@{/forget}" method="post" onsubmit="return validateEmail();">
+                    <label for="email" class="label-tnt">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required />
+                    
+                    <!-- Success/Error Messages for Email Sending -->
+                    <div th:if="${success}" class="alert alert-success mt-3">
+                        [[${success}]]
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger mt-3">
+                        [[${error}]]
+                    </div>
 
-			</form>
-		</div>
-	</div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Password Form (will be shown after email submission) -->
+            <div id="passwordForm" style="display:none;">
+                <form th:action="@{/change-password}" method="post">
+                    <label for="newPassword" class="label-tnt">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter new password" required />
+                    
+                    <label for="confirmPassword" class="label-tnt">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required />
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Simulating the email form submission and displaying the password change form
+        function showPasswordForm() {
+            document.getElementById("emailForm").style.display = "none"; // Hide email form
+            document.getElementById("passwordForm").style.display = "block"; // Show password form
+        }
+    </script>
 </body>
 </html>

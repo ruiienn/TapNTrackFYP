@@ -102,7 +102,7 @@ public class ActivitiesController {
 	}
 
 	@GetMapping("/activities/edit/{id}")
-	public String editActivities(@PathVariable("id") Integer id, Model model) {
+	public String editActivities(@PathVariable("id") Long id, Model model) {
 		Activities activities = activitiesRepository.getReferenceById(id);
 		model.addAttribute("activities", activities);
 		return "edit_activities";
@@ -160,20 +160,15 @@ public class ActivitiesController {
 
 	// delete activities
 	@GetMapping("/activities/delete/{id}")
-	public String deleteActivities(@PathVariable("id") Integer id) {
-
+	public String deleteActivities(@PathVariable("id") Long id) {
 		activitiesRepository.deleteById(id);
-
 		return "redirect:/activities";
 	}
 
-	// View single activities
 	@GetMapping("/activities/{id}")
-	public String viewSingleActivities(@PathVariable("id") Integer id, Model model) {
-
+	public String viewSingleActivities(@PathVariable("id") Long id, Model model) {
 		Activities activities = activitiesRepository.getReferenceById(id);
 		model.addAttribute("activities", activities);
-
 		return "view_single_activities";
 	}
 

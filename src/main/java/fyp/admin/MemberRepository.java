@@ -12,6 +12,7 @@
 package fyp.admin;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -25,4 +26,6 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
 	  @Query("SELECT m FROM Member m ORDER BY m.points DESC")
 	  List<Member> findAllOrderByPoints();
+	  boolean existsByUsername(String username);
+		Optional<Member> findByEmail(String email);
 	}
