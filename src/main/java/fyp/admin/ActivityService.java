@@ -9,30 +9,39 @@ import java.util.stream.Collectors;
 @Service
 public class ActivityService {
 
-    @Autowired
-    private ActivitiesRepository activitiesRepository;
+	@Autowired
+	private ActivitiesRepository activitiesRepository;
 
-    public List<Activities> getAllActivities() {
-        return activitiesRepository.findAll();
-    }
-    
-    public List<ParticipationResponse> getParticipationData() {
-        List<Object[]> rawData = activitiesRepository.findParticipantCountsByDate();
+	// Fetch all activities
+	public List<Activities> getAllActivities() {
+		return activitiesRepository.findAll();
+	}
 
-        return rawData.stream()
-                .map(data -> new ParticipationResponse((String) data[0], ((Number) data[1]).intValue()))
-                .collect(Collectors.toList());
-    }
+	// Fetch participant counts for each activity
+	public List<ParticipationResponse> getParticipationData() {
+		List<Object[]> rawData = activitiesRepository.findParticipantCountsByActivity(); // Updated method name
 
-    public void saveActivity(Activities activities) {
-        activitiesRepository.save(activities);
-    }
+		return rawData.stream().map(data -> new ParticipationResponse((String) data[0], ((Number) data[1]).intValue()))
+				.collect(Collectors.toList());
+	}
 
-    public void deleteActivity(Long id) {
-        activitiesRepository.deleteById(id);
-    }
+	// Save a new activity
+	public void saveActivity(Activities activities) {
+		activitiesRepository.save(activities);
+	}
 
-    public Activities getActivityById(Long id) {
-        return activitiesRepository.findById(id).orElse(null); // Returns null if not found
-    }
+	// Delete an activity by ID
+	public void deleteActivity(Long id) {
+		if (activitiesRepository.existsById(id)) {
+			activitiesRepository.deleteById(id);
+		} else {
+			throw new IllegalArgumentException("Activity with ID " + id + " does not exist.");
+		}
+	}
+
+	// Get an activity by ID
+	public Activities getActivityById(Long id) {
+		return activitiesRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Activity with ID " + id + " not found."));
+	}
 }

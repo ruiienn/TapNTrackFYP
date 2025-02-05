@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ActivitiesRepository extends JpaRepository<Activities, Long> {
 
-    @Query("SELECT a.name, COUNT(p.id) FROM Activity a JOIN Participation p ON a.id = p.activity.id GROUP BY a.name")
-    List<Object[]> findParticipantCountsByDate();
+	@Query("SELECT a.activity, COUNT(m.id) " + "FROM Activities a " + "JOIN a.members m " + "GROUP BY a.activity")
+	List<Object[]> findParticipantCountsByActivity();
 }
