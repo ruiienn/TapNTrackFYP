@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
@@ -55,6 +56,10 @@ public class RewardsController {
 
 	@Autowired
 	private MemberService memberService;
+	
+	@Autowired
+	private PointsRewardedService pointsRewardedService;
+
 
 	@GetMapping("/rewards")
 	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model,
@@ -129,40 +134,25 @@ public class RewardsController {
 	}
 
 	@GetMapping("/redeem")
-	public String viewRedeemHistory(@RequestParam(value = "redeemedDate", required = false) String redeemedDate,
-			Model model, Principal principal) {
-		// First instance logic
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
+	public String showRedeemPage(Model model, Principal principal) {
+	    // Ensure the user is authenticated
+	    String username = principal.getName();
+	    Member member = memberRepository.findByUsername(username);
 
-		if (member == null) {
-			model.addAttribute("error", "Member not found.");
-			return "redeem";
-		}
+	    // Handle the case where the member does not exist
+	    if (member == null) {
+	        model.addAttribute("error", "Member not found.");
+	        return "error"; // Redirect to an error page
+	    }
 
-		List<MemberRewards> redeemedRewardsFirst;
-		if (redeemedDate != null && !redeemedDate.isEmpty()) {
-			LocalDate date = LocalDate.parse(redeemedDate);
-			redeemedRewardsFirst = memberRewardsRepository.findByMemberAndRedeemedDate(member, date);
-		} else {
-			redeemedRewardsFirst = memberRewardsRepository.findByMember(member);
-		}
+	    // Calculate total points and add it to the model
+	    Integer totalPoints = pointsRewardedService.calculateTotalPoints(member);
+	    model.addAttribute("memberPoints", totalPoints != null ? totalPoints : 0);
 
-		model.addAttribute("redeemedRewardsFirst", redeemedRewardsFirst);
-
-		// Second instance logic
-		List<MemberRewards> redeemedRewardsSecond;
-		if (redeemedDate != null && !redeemedDate.isEmpty()) {
-			LocalDate date = LocalDate.parse(redeemedDate);
-			redeemedRewardsSecond = memberRewardsRepository.findByMemberAndRedeemedDate(member, date);
-		} else {
-			redeemedRewardsSecond = memberRewardsRepository.findByMember(member);
-		}
-
-		model.addAttribute("redeemedRewardsSecond", redeemedRewardsSecond);
-
-		return "redeem";
+	    // Return the redeem page
+	    return "redeem";
 	}
+
 
 //	@GetMapping("/redeem")
 //	public String redeem(Model model, Principal principal) {

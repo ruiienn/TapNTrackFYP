@@ -13,6 +13,7 @@ package fyp.admin;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @Entity
 public class Member {
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<History> histories;
 	
 	@Id

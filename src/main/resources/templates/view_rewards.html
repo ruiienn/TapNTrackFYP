@@ -15,7 +15,8 @@
 	<div class="container">
 		<div class="tnt">
 			<div class="points-container">
-				<span>My Point(s): </span><a href="/history"> <img class="icon" src="images/point.png" />
+				<span>My Point(s): <span id="memberPoints"></span></span>
+				<a href="/history"> <img class="icon" src="images/point.png" />
 				</a>
 			</div>
 			<div class="label-container">
@@ -97,6 +98,23 @@
 
 	<!-- JavaScript -->
 	<script>
+		// Function to dynamically fetch and update points
+		function updatePoints() {
+			fetch('/api/member/points')
+				.then(response => response.json())
+				.then(points => {
+					// Update the points in the points container
+					document.getElementById('memberPoints').textContent = points;
+				})
+				.catch(error => console.error('Error fetching points:', error));
+		}
+
+		// Initial update when the page loads
+		updatePoints();
+
+		// Periodic update every 30 seconds
+		setInterval(updatePoints, 30000);
+
 		function filterRewards(order) {
 			const currentUrl = new URL(window.location.href);
 			currentUrl.searchParams.set('filter', order);

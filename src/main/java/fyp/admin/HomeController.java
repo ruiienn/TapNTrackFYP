@@ -47,19 +47,6 @@ public class HomeController {
 		return "leaderboard"; // Thymeleaf template for leaderboard
 	}
 
-	@GetMapping("/history")
-	public String showHistoryPage(Model model) {
-		// Fetch a generic member's points (for instance, a public user or guest)
-		Member guestMember = memberRepository.findByUsername("guest"); // Example of a default member
-
-		if (guestMember != null) {
-			model.addAttribute("memberPoints", guestMember.getPoints());
-		} else {
-			model.addAttribute("memberPoints", 0); // Default points if guest member doesn't exist
-		}
-
-		return "history"; // Thymeleaf template for history
-	}
 
 	@GetMapping("/403")
 	public String error403() {

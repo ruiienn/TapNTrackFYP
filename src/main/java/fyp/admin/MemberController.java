@@ -91,7 +91,7 @@ public class MemberController {
 		Member savedMember = memberRepository.save(member);
 
 		// Generate the unique link for adding points
-		String uniqueLink = "https://tapntrackfyp.onrender.com/members/" + savedMember.getId() + "/addPoints";
+	    String uniqueLink = "https://tapntrackfyp.onrender.com/pointsRewarded/";
 
 		model.addAttribute("uniqueLink", uniqueLink);
 		model.addAttribute("success", "Member successfully added!");
@@ -159,25 +159,25 @@ public class MemberController {
 		return "redirect:/profile";
 	}
 
-	@PostMapping("/members/{id}/addPoints")
-	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-		try {
-			memberService.addPoints(id, 10); // Add 10 points to the user
-			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-		} catch (RuntimeException e) {
-			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-		}
-		return "redirect:/members"; // Redirect to the leaderboard
-	}
-
-	@GetMapping("/members/{id}/addPoints")
-	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-		try {
-			memberService.addPoints(id, 10); // Add 10 points to the user
-			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-		} catch (RuntimeException e) {
-			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-		}
-		return "redirect:/members"; // Redirect to the leaderboard
-	}
+//	@PostMapping("/members/{id}/addPoints")
+//	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+//		try {
+//			memberService.addPoints(id, 10); // Add 10 points to the user
+//			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+//		} catch (RuntimeException e) {
+//			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+//		}
+//		return "redirect:/members"; // Redirect to the leaderboard
+//	}
+//
+//	@GetMapping("/members/{id}/addPoints")
+//	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+//		try {
+//			memberService.addPoints(id, 10); // Add 10 points to the user
+//			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+//		} catch (RuntimeException e) {
+//			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+//		}
+//		return "redirect:/members"; // Redirect to the leaderboard
+//	}
 }

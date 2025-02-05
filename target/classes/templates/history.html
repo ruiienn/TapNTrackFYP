@@ -1,27 +1,30 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Points History</title>
-<link rel="icon" type="image/png" href="/images/nfc.png">
-<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Points History</title>
+	<link rel="icon" type="image/png" href="/images/nfc.png">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
+
 <body>
 	<div th:replace="fragments/style"></div>
 	<div th:replace="fragments/history_style"></div>
 	<div class="container">
 		<div class="tnt">
 			<div style="padding-top: 15px;">
-				<i> Points History <img src="/images/history.png"
-					class="tnt-icon"></i>
+				<i> Points History <img src="/images/history.png" class="tnt-icon"></i>
 			</div>
 
 			<!-- Display User's Points -->
 			<div class="points">
-				<span>My Points: <span th:text="${memberPoints}"></span></span> <a
-					href="/history"> <img class="icon" src="/images/point.png" />
+				<span>My Points: <span th:text="${memberPoints}"></span></span>
+				<a href="/history">
+					<img class="icon" src="/images/point.png" />
 				</a>
 			</div>
+
 
 			<!-- Points History -->
 			<div id="overflow">
@@ -48,4 +51,24 @@
 		</div>
 	</div>
 </body>
+
+<script>
+	function updatePoints() {
+		fetch('/api/member/points')
+			.then(response => response.json())
+			.then(points => {
+				document.querySelectorAll('.points-container span').forEach(span => {
+					span.textContent = points;
+				});
+			});
+	}
+
+	// Update points every 30 seconds
+	setInterval(updatePoints, 30000);
+
+	// Initial update
+	updatePoints();
+
+</script>
+
 </html>

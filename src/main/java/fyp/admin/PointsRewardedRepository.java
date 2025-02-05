@@ -1,11 +1,9 @@
 package fyp.admin;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface PointsRewardedRepository extends JpaRepository<PointsRewarded, Integer> {
+    List<PointsRewarded> findByMember(Member member);
 }
-
-
 

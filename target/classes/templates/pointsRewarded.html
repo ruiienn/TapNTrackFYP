@@ -29,41 +29,77 @@
 	<div th:replace="fragments/style"></div>
 	<div class="container">
 		<h1>Add Points Rewarded</h1>
-		<form th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
+		<form id="addPointsForm" th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
 			<!-- Display member details -->
 			<p>Member: <span th:text="${pointsRewarded.member.username}"></span></p>
 
 			<!-- Activity selection -->
 			<label>Activity:</label>
-			<select th:field="*{activityForm}">
+			<select id="activityDropdown" th:field="*{activityForm}" required>
 				<option value="" disabled selected>Select activity</option>
-				<option th:each="activity : ${activitiesList}" th:value="${activity.activity}"
+				<option th:each="activity : ${activitiesList}" th:value="${activity.id}"
+					th:data-booths="${activity.booth}" th:data-points="${activity.pointsRewarded}"
 					th:text="${activity.activity}">
 				</option>
 			</select>
 
 			<!-- Booth selection -->
 			<label>Booth:</label>
-			<select th:field="*{boothForm}">
+			<select id="boothDropdown" th:field="*{boothForm}" required>
 				<option value="" disabled selected>Select booth</option>
-				<option th:each="booth : ${boothsList}" th:value="${booth}" th:text="${booth}">
-				</option>
 			</select>
 
-			<!-- Points input -->
+			<!-- Points selection -->
 			<label>Points:</label>
-			<input type="number" th:field="*{pointsRewardedForm}" required />
+			<select id="pointsDropdown" th:field="*{pointsRewardedForm}" required>
+				<option value="" disabled selected>Select points</option>
+			</select>
 
 			<!-- Submit button -->
 			<button type="submit">Reward Points</button>
 		</form>
-
 
 		<div class="popup" id="popup">
 			<p>Activity added successfully!</p>
 			<p>Redirecting to the history page...</p>
 		</div>
 	</div>
+
+	<!-- JavaScript for Dynamic Booth and Points Dropdown -->
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const activityDropdown = document.getElementById('activityDropdown');
+			const boothDropdown = document.getElementById('boothDropdown');
+			const pointsDropdown = document.getElementById('pointsDropdown');
+
+			activityDropdown.addEventListener('change', function () {
+				const selectedOption = this.options[this.selectedIndex];
+				const points = selectedOption.getAttribute('data-points'); // Fetch points from activity
+				const booths = selectedOption.getAttribute('data-booths'); // Fetch booths from activity
+
+				// Update Points Dropdown
+				pointsDropdown.innerHTML = '<option value="" disabled selected>Select points</option>';
+				if (points) {
+					const option = document.createElement('option');
+					option.value = points;
+					option.textContent = points;
+					pointsDropdown.appendChild(option);
+				}
+
+				// Update Booth Dropdown
+				boothDropdown.innerHTML = '<option value="" disabled selected>Select booth</option>';
+				if (booths) {
+					const boothList = booths.split(','); // Assuming booths are comma-separated
+					boothList.forEach(booth => {
+						const option = document.createElement('option');
+						option.value = booth;
+						option.textContent = booth;
+						boothDropdown.appendChild(option);
+					});
+				}
+			});
+		});
+	</script>
 
 	<!-- Form Validation -->
 	<script>

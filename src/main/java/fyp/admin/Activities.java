@@ -53,7 +53,7 @@ public class Activities {
 	private int pointsRewarded;
 
 	private boolean participated;
-
+	
 	public int getId() {
 		return id;
 	}
