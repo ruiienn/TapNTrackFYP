@@ -15,6 +15,27 @@
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
+
+.profile {
+	background-color: #b4a597;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	max-width: 300px;
+	width: 100%;
+	padding: 20px;
+	border-radius: 20px;
+	text-align: left;
+	display: table;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 1;
+	text-decoration: none;
+	color: black;
+}
+
+.profile:hover {
+	background-color: #e1dbd5;
+}
 </style>
 </head>
 <body>
@@ -24,7 +45,7 @@
 			<i>My Profile Details <img src="/images/profile.png"
 				class="tnt-icon"></i>
 			<div class="tnt-row">
-				<div class="card">
+				<div class="profile">
 					<p class="card-text">
 						<img th:src="${member.avatar}" alt="Avatar" class="card-img" />
 					</p>

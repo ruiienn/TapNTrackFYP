@@ -50,7 +50,7 @@
 				<div id="overflow">
 					<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
 						<div class="row">
-							<div th:each="reward : ${redeemedRewards}" class="col-md-4 mb-4">
+							<div th:each="reward : ${redeemedRewards}" class="reward">
 								<div class="card">
 									<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
 										alt="Reward Image" class="card-img-top reward-image">

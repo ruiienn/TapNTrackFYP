@@ -58,7 +58,7 @@
 					</div>
 				</div>
 
-				<div id="over">
+				<!--<div id="over">
 					<div style="display: flex; justify-content: center; align-items: center;">
 						<table
 							style="border-collapse: collapse; border-spacing: 10px; border-radius: 10px; border: 1px solid black;">
@@ -75,6 +75,21 @@
 								</tr>
 							</tbody>
 						</table>
+					</div>
+				</div>-->
+				<div class="row">
+					<div th:each="member, iterStat : ${topMembers}" th:if="${iterStat.index >= 3}">
+						<div class="other">
+							<span class="placing" th:text="${iterStat.index + 1}"></span> <img th:src="${member.avatar}"
+								alt="Avatar" class="pfp">
+							<div class="username">
+								<span th:text="${member.username}"></span>
+								<div>
+									<span th:text="${member.points}">Points</span> <img src="/images/point.png"
+										class="icon">
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -91,7 +91,7 @@ public class MemberController {
 		Member savedMember = memberRepository.save(member);
 
 		// Generate the unique link for adding points
-	    String uniqueLink = "https://tapntrackfyp.onrender.com/pointsRewarded/";
+	    String uniqueLink = "https://tapntrackfyp.onrender.com/pointsRewarded/form/" + savedMember.getId();
 
 		model.addAttribute("uniqueLink", uniqueLink);
 		model.addAttribute("success", "Member successfully added!");
