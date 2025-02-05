@@ -28,7 +28,20 @@
 <body>
 	<div th:replace="fragments/style"></div>
 	<div class="container">
-		<h1>Add Points Rewarded</h1>
+		<h1>Reward Points to <span th:text="${member.username}"></span></h1>
+
+		<!-- Confirmation Prompt -->
+		<p>Are you sure you want to add <b>10 points</b> to <b th:text="${member.username}"></b>?</p>
+
+		<!-- Confirm Points Addition -->
+		<form id="confirmPointsForm" th:action="@{/pointsrewarded/form/{id}(id=${member.id})}" method="post">
+			<button type="submit" class="btn btn-success">Confirm</button>
+			<a href="/members" class="btn btn-secondary">Cancel</a>
+		</form>
+
+		<hr>
+
+		<h2>Add More Points Rewarded</h2>
 		<form id="addPointsForm" th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
 			<!-- Display member details -->
 			<p>Member: <span th:text="${pointsRewarded.member.username}"></span></p>
@@ -56,7 +69,7 @@
 			</select>
 
 			<!-- Submit button -->
-			<button type="submit">Reward Points</button>
+			<button type="submit" class="btn btn-primary">Reward Points</button>
 		</form>
 
 		<div class="popup" id="popup">
@@ -141,6 +154,7 @@
 			}, 2000);
 		});
 	</script>
+
 </body>
 
 </html>
