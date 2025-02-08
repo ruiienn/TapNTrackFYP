@@ -1,14 +1,3 @@
-/**
- * 
- * I declare that this code was written by me, xandr. 
- * I will not copy or allow others to copy my code. 
- * I understand that copying code is considered as plagiarism.
- * 
- * Student Name: xandra
- * Student ID: 22022591
- * Date created: 2024-Oct-28 2:40:24 pm 
- * 
- */
 package fyp.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,43 +5,66 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
 
-
-
-/**
- * @author xandr
- *
- */
-
+@Service
 public class MemberDetailsService implements UserDetailsService {
 
-	 @Autowired 
-	   private MemberRepository memberRepository; 
-	 
-	   @Override 
-	   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
-	     Member member = memberRepository.findByUsername(username); 
-	     if (member == null) { 
-	       throw new UsernameNotFoundException("Could not find user"); 
-	     } 
-	     return new MemberDetails(member); 
-	   } 
-	    public Member save(Member member) {
-	        return memberRepository.save(member);
-	    }
-	    
-	    public boolean usernameExists(String username) {
-	        return memberRepository.existsByUsername(username);
-	    }
-	    
-	    public void saveMember(Member member) {
-	        // Encrypt password before saving it
-	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-	        String encodedPassword = encoder.encode(member.getPassword());
-	        member.setPassword(encodedPassword);
+	@Autowired
+	private MemberRepository memberRepository;
 
-	        // Save member to the database
-	        memberRepository.save(member);
-	    }
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return Optional.ofNullable(memberRepository.findByUsername(username)).map(MemberDetails::new)
+				.orElseThrow(() -> new UsernameNotFoundException("Could not find user: " + username));
 	}
+
+	public Member save(Member member) {
+		return memberRepository.save(member);
+	}
+
+	// Checks if the username already exists in the repository
+	public boolean usernameExists(String username) {
+		return memberRepository.existsByUsername(username);
+	}
+
+	// Save member with an encrypted password
+	public void saveMember(Member member) {
+		// Encrypt password before saving
+		if (member.getPassword() != null && !member.getPassword().isEmpty()) {
+			String encodedPassword = passwordEncoder.encode(member.getPassword());
+			member.setPassword(encodedPassword);
+		}
+		memberRepository.save(member);
+	}
+
+	// Update the password for a specific username, ensuring it's hashed
+	public boolean updatePassword(String username, String newPassword) {
+		Member member = memberRepository.findByUsername(username);
+		if (member == null) {
+			System.out.println("User not found: " + username); // Debugging message
+			return false;
+		}
+
+		// Encrypt the new password before saving
+		String encodedPassword = passwordEncoder.encode(newPassword);
+		member.setPassword(encodedPassword);
+		memberRepository.save(member);
+
+		System.out.println("Password updated successfully for: " + username); // Debugging message
+		return true;
+	}
+
+	// Check the password for the given user
+	public boolean checkPassword(String username, String password) {
+		Member member = memberRepository.findByUsername(username);
+		if (member == null) {
+			return false;
+		}
+		return passwordEncoder.matches(password, member.getPassword());
+	}
+}

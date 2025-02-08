@@ -19,7 +19,7 @@
 
 			<!-- Display User's Points -->
 			<div class="points">
-				<span>My Points: <span id="memberPoints" th:text="${memberPoints}"></span></span>
+				<span id="memberPoints" th:text="${memberPoints}"></span>
 				<a href="/history">
 					<img class="icon" src="/images/point.png" />
 				</a>
@@ -91,28 +91,22 @@
 
 </script>
 <script>
-	function updateHistory(history) {
-		const container = document.querySelector("#overflow .other");
-		container.innerHTML = ""; // Clear existing history
-		history.forEach(item => {
-			const div = document.createElement("div");
-			div.classList.add("earn");
-			div.innerHTML = `
-					<div>
-						<h5 style="color: #06B48B">
-							+${item.pointsRewardedForm} <img src="/images/point.png" style="width: 30px; height: 30px;">
-						</h5>
-						<p>
-							Points Earned at ${item.boothForm} Booth for ${item.activityForm} Activity
-						</p>
-					</div>`;
-			container.appendChild(div);
-		});
+	function updatePoints() {
+		fetch('/api/member/points')
+			.then(response => response.json())
+			.then(data => {
+				// Update all points containers dynamically
+				document.querySelectorAll('.points-container span, #memberPoints').forEach(el => {
+					el.textContent = `My Point(s): ${data.totalPoints}`;
+				});
+			})
+			.catch(error => console.error('Error fetching points:', error));
 	}
 
-	// Initial call to fetch points and history
-	updatePoints();
-	setInterval(updateHistoryPoints, 10000); // Refresh history points every 10 seconds
+	// Call `updatePoints` initially and set periodic updates every 30 seconds
+	document.addEventListener('DOMContentLoaded', updatePoints);
+	setInterval(updatePoints, 30000);
+
 </script>
 
 

@@ -69,6 +69,14 @@
 				x.type = "password";
 			}
 		}
+
+		// After editing the profile, reload the page to update the leaderboard
+		document.querySelector('form').addEventListener('submit', function (e) {
+			setTimeout(() => {
+				window.location.href = '/'; // Redirect to the index page to refresh the leaderboard
+			}, 2000);
+		});
+
 	</script>
 </body>
 

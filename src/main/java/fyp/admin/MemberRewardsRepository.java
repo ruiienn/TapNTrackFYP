@@ -28,7 +28,4 @@ public interface MemberRewardsRepository extends JpaRepository<MemberRewards, In
 	public List<MemberRewards> findByRewards(Rewards rewards);
 
 	public List<MemberRewards> findByMemberAndRedeemedDate(Member member, LocalDate redeemedDate);
-
-	public int countByMemberAndRedeemedDate(Member member, LocalDate redeemedDate);
-
 }

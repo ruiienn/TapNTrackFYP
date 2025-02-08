@@ -14,12 +14,6 @@
 	<div th:replace="fragments/rewards_style"></div>
 	<div class="container">
 		<div class="tnt">
-			<div class="points-container">
-				<span>My Point(s): <span th:text="${member != null ? member.points : '0'}"></span>
-				</span>
-				<a href="/history"> <img class="icon" src="images/point.png" />
-				</a>
-			</div>
 			<div class="label-container">
 				<div class="label" style="border-bottom: 2px solid #06B48B;">
 					<a href="/rewards" class="link"> <img style="margin-left: 15px; width: 40px; height: 40px;"
@@ -53,7 +47,7 @@
 			<!-- Display Rewards with Redeem Option -->
 			<div id="overflow">
 				<div class="tnt-row">
-					<div class="reward" th:each="reward : ${listRewards}">
+					<div class="card" th:each="reward : ${listRewards}">
 						<img th:src="@{'/uploads/rewards/' + ${reward.rewardsId} + '/' + ${reward.imgName}}"
 							class="card-img">
 						<div>
@@ -73,14 +67,11 @@
 								Status: <span th:text="${reward.status}"></span>
 							</p>
 							<div>
-								<!-- Redeem Button -->
-								<a th:if="${reward.quantity > 0}"
+								<a th:if="${reward.quantity > 0 && reward.status == 'Available'}"
 									th:href="@{/redeem/process/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									onclick="return confirm('Are you sure you want to redeem this reward?');"
-									class="btn btn-primary">Redeem</a>
-								<!-- Disabled Button -->
-								<button th:if="${reward.quantity <= 0}" class="btn btn-secondary" disabled>Not
-									Available</button>
+									onclick="return confirmRedeem()" class="btn-rewards">Redeem</a>
+								<button th:if="${reward.quantity == 0 || reward.status != 'Available'}"
+									onclick="alertUnavailable()" class="btn-rewards btn-disabled">Redeem</button>
 							</div>
 
 							<div class="end">
@@ -92,53 +83,25 @@
 								</div>
 							</div>
 						</div>
+
 					</div>
 				</div>
 			</div>
-
-
 		</div>
 	</div>
 	</div>
 
 	<!-- JavaScript -->
 	<script>
-		// Function to dynamically fetch and update points
-		function updatePoints() {
-			fetch('/api/member/points')
-				.then(response => response.json())
-				.then(points => {
-					// Update the points in the points container
-					document.getElementById('memberPoints').textContent = points;
-				})
-				.catch(error => console.error('Error fetching points:', error));
-		}
-
-		// Initial update when the page loads
-		updatePoints();
-
-		// Periodic update every 30 seconds
-		setInterval(updatePoints, 30000);
-
 		function filterRewards(order) {
 			const currentUrl = new URL(window.location.href);
 			currentUrl.searchParams.set('filter', order);
 			window.location.href = currentUrl.toString();
 		}
 
-		function validateRedemption() {
-			const redeemedToday = parseInt(document.body.getAttribute('data-redeemed-today')) || 0;
-			const maxRedemptionsPerDay = 3;
-
-			if (redeemedToday >= maxRedemptionsPerDay) {
-				alert('You have reached the maximum redemption limit of 3 rewards per day.');
-				return false; // Prevent redirection
-			}
-
+		function confirmRedeem() {
 			return confirm('Are you sure you want to redeem this reward?');
 		}
-
-
 		function alertUnavailable() {
 			alert('This reward is unavailable or out of stock. Please try again later.');
 		}

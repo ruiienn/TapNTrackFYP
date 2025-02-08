@@ -110,45 +110,74 @@ public class MemberController {
 
 	// View Single Member Profile
 	@GetMapping("/members/{id}")
-	public String viewSingleMember(@PathVariable("id") Integer id, Model model) {
-		Member member = memberRepository.getReferenceById(id);
-		model.addAttribute("member", member);
-		return "view_single_member";
+	public String viewSingleMember(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+	    Member member = memberRepository.findById(id).orElse(null);
+	    if (member == null) {
+	        redirectAttributes.addFlashAttribute("error", "Member not found.");
+	        return "redirect:/members"; // Redirect to members list if member is not found
+	    }
+	    model.addAttribute("member", member);
+	    return "view_single_member";
 	}
+
 
 	// Profile Handling for Logged-in Users
 	@GetMapping("/profile")
-	public String viewProfile(Model model, Principal principal) {
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
-		model.addAttribute("member", member);
-		return "profile";
+	public String viewProfile(Model model, Principal principal, RedirectAttributes redirectAttributes) {
+	    if (principal == null || principal.getName() == null) {
+	        redirectAttributes.addFlashAttribute("error", "You must be logged in to view your profile.");
+	        return "redirect:/login"; // Redirect to login if the principal is null
+	    }
+	    String username = principal.getName();
+	    Member member = memberRepository.findByUsername(username);
+	    if (member == null) {
+	        redirectAttributes.addFlashAttribute("error", "User not found.");
+	        return "redirect:/"; // Redirect to home if member is not found
+	    }
+	    model.addAttribute("member", member);
+	    return "profile";
 	}
-
 	@GetMapping("/profile/edit")
-	public String editProfile(Model model, Principal principal) {
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
-		model.addAttribute("member", member);
-		return "edit_profile";
+	public String editProfile(Model model, Principal principal, RedirectAttributes redirectAttributes) {
+	    if (principal == null || principal.getName() == null) {
+	        redirectAttributes.addFlashAttribute("error", "You must be logged in to edit your profile.");
+	        return "redirect:/login"; // Redirect to login if the principal is null
+	    }
+	    String username = principal.getName();
+	    Member member = memberRepository.findByUsername(username);
+	    if (member == null) {
+	        redirectAttributes.addFlashAttribute("error", "User not found.");
+	        return "redirect:/"; // Redirect to home if member is not found
+	    }
+	    model.addAttribute("member", member);
+	    return "edit_profile";
 	}
-
 	@PostMapping("/profile/edit")
-	public String saveProfile(@ModelAttribute("member") Member member, Principal principal,
-			RedirectAttributes redirectAttributes) {
-		String username = principal.getName();
-		Member existingMember = memberRepository.findByUsername(username);
+	public String updateProfile(@ModelAttribute Member member, Principal principal, RedirectAttributes redirectAttributes) {
+	    if (principal == null || principal.getName() == null) {
+	        redirectAttributes.addFlashAttribute("error", "You must be logged in to edit your profile.");
+	        return "redirect:/login"; // Redirect to login if the principal is null
+	    }
 
-		if (existingMember == null) {
-			redirectAttributes.addFlashAttribute("error", "Member not found.");
-			return "redirect:/profile";
-		}
+	    String username = principal.getName();
+	    Member existingMember = memberRepository.findByUsername(username);
 
-		member.setPassword(existingMember.getPassword());
-		member.setId(existingMember.getId());
-		memberRepository.save(member);
-		redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
-		return "redirect:/profile";
+	    if (existingMember == null) {
+	        redirectAttributes.addFlashAttribute("error", "User not found.");
+	        return "redirect:/profile"; // Redirect back to the profile page
+	    }
+
+	    // Update fields with null checks
+	    existingMember.setUsername(member.getUsername());
+	    existingMember.setEmail(member.getEmail());
+	    existingMember.setAvatar(member.getAvatar() != null ? member.getAvatar() : "/avatar/default.png"); // Default avatar
+	    existingMember.setPoints(member.getPoints());
+
+	    // Save the updated member
+	    memberRepository.save(existingMember);
+
+	    redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
+	    return "redirect:/profile"; // Redirect to profile page
 	}
 
 //	// Admin-Only Access to Points Reward Form
@@ -183,26 +212,26 @@ public class MemberController {
 //		model.addAttribute("member", member);
 //		return "pointsRewarded";
 //	}
-	
-	@PostMapping("/members/{id}/addPoints")
-	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-		try {
-			memberService.addPoints(id, 10); // Add 10 points to the user
-			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-		} catch (RuntimeException e) {
-			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-		}
-		return "redirect:/members"; // Redirect to the leaderboard
-	}
-	
-	@GetMapping("/members/{id}/addPoints")
-	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-		try {
-			memberService.addPoints(id, 10); // Add 10 points to the user
-			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
-		} catch (RuntimeException e) {
-			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
-		}
-		return "redirect:/members"; // Redirect to the leaderboard
-	}
+
+//	@PostMapping("/members/{id}/addPoints")
+//	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+//		try {
+//			memberService.addPoints(id, 10); // Add 10 points to the user
+//			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+//		} catch (RuntimeException e) {
+//			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+//		}
+//		return "redirect:/members"; // Redirect to the leaderboard
+//	}
+//
+//	@GetMapping("/members/{id}/addPoints")
+//	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+//		try {
+//			memberService.addPoints(id, 10); // Add 10 points to the user
+//			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+//		} catch (RuntimeException e) {
+//			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+//		}
+//		return "redirect:/members"; // Redirect to the leaderboard
+//	}
 }

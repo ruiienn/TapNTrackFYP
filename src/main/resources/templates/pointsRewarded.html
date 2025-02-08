@@ -105,45 +105,6 @@
 				}
 			});
 
-			// Prevent duplicate form submission
-			let formSubmitted = false;
-			form.addEventListener('submit', function (event) {
-				event.preventDefault(); // Prevent default form submission
-
-				// Ensure the form is not submitted multiple times
-				if (formSubmitted) {
-					alert("Points already being processed. Please wait.");
-					return;
-				}
-				formSubmitted = true;
-
-				const formData = new FormData(this);
-				const memberId = document.getElementById('memberId').value; // Get the memberId correctly
-
-
-				fetch(this.action, {
-					method: 'POST',
-					body: formData
-				})
-					.then(response => response.json())
-					.then(data => {
-						if (data.success) {
-							popup.classList.add('active'); // Show popup
-							updatePoints(); // Dynamically update points
-							setTimeout(() => {
-								window.location.href = '/history?memberId=' + memberId; // Redirect to history
-							}, 2000);
-						} else {
-							alert('Failed to reward points. Please try again.');
-							formSubmitted = false; // Reset form submission status
-						}
-					})
-					.catch(error => {
-						console.error('Error:', error);
-						formSubmitted = false;
-					});
-			});
-
 			// Update points dynamically
 			function updatePoints() {
 				fetch('/api/member/points')
@@ -157,7 +118,25 @@
 			}
 		});
 	</script>
+
+	<!-- Popup Handling -->
+	<script>
+		const form = document.getElementById('addPointsForm');
+		const popup = document.getElementById('popup');
+
+		form.addEventListener('submit', function (event) {
+			// Prevent the default form submission
+			event.preventDefault();
+
+			// Show the popup
+			popup.classList.add('active');
+
+			// Wait for 2 seconds, then submit the form and redirect
+			setTimeout(() => {
+				form.submit();
+			}, 2000);
+		});
+	</script>
 </body>
 
 </html>
-

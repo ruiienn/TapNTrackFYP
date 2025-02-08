@@ -58,7 +58,7 @@ public class PointsRewardedController {
 
 			if (existingMember == null) {
 				redirectAttributes.addFlashAttribute("errorMessage", "Member not found.");
-				return "redirect:/history";
+				return "redirect:/error"; // Redirect to a proper error page
 			}
 
 			try {
@@ -69,6 +69,9 @@ public class PointsRewardedController {
 
 				// Save the updated member
 				memberRepository.save(existingMember);
+
+				// Save the points rewarded record
+				pointsRewardedService.save(pointsRewarded);
 
 				// Add success message
 				redirectAttributes.addFlashAttribute("successMessage", "Points rewarded successfully!");
@@ -82,9 +85,8 @@ public class PointsRewardedController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Invalid member details. Please try again.");
 		}
 
-		// Redirect back to the history page
-		return "redirect:/members";
-
+		// Redirect back to the index page
+		return "redirect:/"; // Redirect to index.html
 	}
 
 	@GetMapping("/history")
