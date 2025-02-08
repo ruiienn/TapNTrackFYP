@@ -27,31 +27,23 @@
 
 <body>
 	<div th:replace="fragments/style"></div>
+
 	<div class="container">
-		<h1>Reward Points to <span th:text="${member.username}"></span></h1>
-
-		<!-- Confirmation Prompt -->
-		<p>Are you sure you want to add <b>10 points</b> to <b th:text="${member.username}"></b>?</p>
-
-		<!-- Confirm Points Addition -->
-		<form id="confirmPointsForm" th:action="@{/pointsrewarded/form/{id}(id=${member.id})}" method="post">
-			<button type="submit" class="btn btn-success">Confirm</button>
-			<a href="/members" class="btn btn-secondary">Cancel</a>
-		</form>
-
-		<hr>
-
-		<h2>Add More Points Rewarded</h2>
+		<h1>Add Points Rewarded</h1>
 		<form id="addPointsForm" th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
+			<!-- Hidden input for member ID -->
+			<input type="hidden" th:field="*{member.id}" />
+
 			<!-- Display member details -->
-			<p>Member: <span th:text="${pointsRewarded.member.username}"></span></p>
+			<p>Member: <span th:text="${pointsRewarded.member != null ? pointsRewarded.member.username : 'N/A'}"></span>
+			</p>
 
 			<!-- Activity selection -->
 			<label>Activity:</label>
 			<select id="activityDropdown" th:field="*{activityForm}" required>
 				<option value="" disabled selected>Select activity</option>
 				<option th:each="activity : ${activitiesList}" th:value="${activity.id}"
-					th:data-booths="${activity.booth}" th:data-points="${activity.pointsRewarded}"
+					th:data-points="${activity.pointsRewarded}" th:data-booths="${activity.booth}"
 					th:text="${activity.activity}">
 				</option>
 			</select>
@@ -69,7 +61,7 @@
 			</select>
 
 			<!-- Submit button -->
-			<button type="submit" class="btn btn-primary">Reward Points</button>
+			<button type="submit">Reward Points</button>
 		</form>
 
 		<div class="popup" id="popup">
@@ -78,7 +70,6 @@
 		</div>
 	</div>
 
-	<!-- JavaScript for Dynamic Booth and Points Dropdown -->
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			const activityDropdown = document.getElementById('activityDropdown');
@@ -87,10 +78,9 @@
 
 			activityDropdown.addEventListener('change', function () {
 				const selectedOption = this.options[this.selectedIndex];
-				const points = selectedOption.getAttribute('data-points'); // Fetch points from activity
-				const booths = selectedOption.getAttribute('data-booths'); // Fetch booths from activity
+				const points = selectedOption.getAttribute('data-points');
+				const booths = selectedOption.getAttribute('data-booths');
 
-				// Update Points Dropdown
 				pointsDropdown.innerHTML = '<option value="" disabled selected>Select points</option>';
 				if (points) {
 					const option = document.createElement('option');
@@ -99,10 +89,9 @@
 					pointsDropdown.appendChild(option);
 				}
 
-				// Update Booth Dropdown
 				boothDropdown.innerHTML = '<option value="" disabled selected>Select booth</option>';
 				if (booths) {
-					const boothList = booths.split(','); // Assuming booths are comma-separated
+					const boothList = booths.split(',');
 					boothList.forEach(booth => {
 						const option = document.createElement('option');
 						option.value = booth;
@@ -111,31 +100,41 @@
 					});
 				}
 			});
-		});
-	</script>
 
-	<!-- Form Validation -->
-	<script>
-		(function () {
-			'use strict';
+			document.getElementById('addPointsForm').addEventListener('submit', function (event) {
+				event.preventDefault();
 
-			// Fetch all the forms we want to apply custom validation to
-			var forms = document.querySelectorAll('.needs-validation');
+				const formData = new FormData(this);
 
-			Array.prototype.slice.call(forms)
-				.forEach(function (form) {
-					form.addEventListener('submit', function (event) {
-						if (!form.checkValidity()) {
-							event.preventDefault();
-							event.stopPropagation();
+				fetch(this.action, {
+					method: 'POST',
+					body: formData
+				})
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							popup.classList.add('active');
+							updatePoints(); // Update points dynamically
+							setTimeout(() => window.location.href = '/history', 2000);
+						} else {
+							alert('Failed to reward points. Please try again.');
 						}
+					})
+					.catch(error => console.error('Error:', error));
+			});
+		});
 
-						form.classList.add('was-validated');
-					}, false);
-				});
-		})();
+		function updatePoints() {
+			fetch('/api/member/points')
+				.then(response => response.json())
+				.then(points => {
+					document.querySelectorAll('.points-container span, #points-display').forEach(el => {
+						el.textContent = points;
+					});
+				})
+				.catch(error => console.error('Error fetching points:', error));
+		}
 	</script>
-
 	<!-- Popup Handling -->
 	<script>
 		const form = document.getElementById('addPointsForm');

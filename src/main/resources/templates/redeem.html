@@ -17,7 +17,8 @@
 			<div class="tnt">
 				<div class="points-container" sec:authorize="isAuthenticated()">
 					<!-- Display the member points dynamically -->
-					<span id="points-display">My Point(s): <span id="memberPoints"></span></span>
+					<span id="points-display">My Point(s): <span
+							th:text="${member != null ? member.points : '0'}"></span></span>
 					<a href="/history">
 						<img class="icon" src="/images/point.png" />
 					</a>

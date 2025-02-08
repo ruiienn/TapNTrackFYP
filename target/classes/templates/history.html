@@ -70,5 +70,17 @@
 	updatePoints();
 
 </script>
+<script>
+	function updateHistoryPoints() {
+		fetch('/pointsRewarded/getMemberPoints?memberId=' + MEMBER_ID)
+			.then(response => response.json())
+			.then(data => {
+				document.getElementById("historyPoints").textContent = data.totalPoints;
+			});
+	}
+
+	setInterval(updateHistoryPoints, 10000); // Refresh history points every 10 seconds
+</script>
+
 
 </html>

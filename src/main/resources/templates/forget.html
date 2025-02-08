@@ -1,77 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reset Password</title>
-    <link rel="icon" type="images/png" href="/images/nfc.png">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <style>
-        .form-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-        }
-        .form-container label {
-            margin-top: 10px;
-        }
-        .form-container input {
-            margin-bottom: 15px;
-        }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forget Password</title>
+<link rel="icon" type="images/png" href="/images/nfc.png">
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
-    <div th:replace="fragments/style"></div>
-    <div class="container">
-        <div class="form-container">
-            <h2 class="text-center">Reset Your Password</h2>
+	<div th:replace="fragments/style"></div>
+	<div class="container">
+		<div class="tnt">
 
-            <!-- Step 1: Email Form -->
-            <div id="emailForm">
-                <form th:action="@{/forget}" method="post" onsubmit="return validateEmail();">
-                    <label for="email" class="label-tnt">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required />
-                    
-                    <!-- Success/Error Messages for Email Sending -->
-                    <div th:if="${success}" class="alert alert-success mt-3">
-                        [[${success}]]
-                    </div>
-                    <div th:if="${error}" class="alert alert-danger mt-3">
-                        [[${error}]]
-                    </div>
+			<i>Forget Password <img src="/images/login.png" class="tnt-icon"></i>
+			<!-- Step 1: Email and Username Form -->
+			<div id="emailForm">
+				<form th:action="@{/forget}" method="post"
+					onsubmit="return validateForm();">
+					<label for="username" class="label-tnt">Username</label> <input
+						type="text" class="input-tnt" id="username" name="username"
+						required /> <label for="email" class="label-tnt">Email</label> <input
+						type="email" class="input-tnt" id="email" name="email" required />
 
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary">Send Reset Link</button>
-                    </div>
-                </form>
-            </div>
+					<!-- Success/Error Messages for Email Sending -->
+					<div th:if="${success}" class="alert alert-success mt-3">
+						[[${success}]]</div>
+					<div th:if="${error}" class="alert alert-danger mt-3">
+						[[${error}]]</div>
 
-            <!-- Step 2: Password Form (will be shown after email submission) -->
-            <div id="passwordForm" style="display:none;">
-                <form th:action="@{/change-password}" method="post">
-                    <label for="newPassword" class="label-tnt">New Password</label>
-                    <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter new password" required />
-                    
-                    <label for="confirmPassword" class="label-tnt">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required />
-                    
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary">Change Password</button>
-                    </div>
-                </form>
-            </div>
+					<div class="text-center mt-4">
+						<button type="submit" class="btn btn-primary">Send OTP</button>
+					</div>
+				</form>
+			</div>
 
-        </div>
-    </div>
+			<!-- Step 2: Password Form (will be shown after email submission) -->
+			<div id="passwordForm" style="display: none;">
+				<form th:action="@{/change-password}" method="post">
+					<label for="newPassword" class="label-tnt">New Password</label> <input
+						type="password" class="input-tnt" id="newPassword"
+						name="newPassword" required /> <label for="confirmPassword"
+						class="label-tnt">Confirm Password</label> <input type="password"
+						class="input-tnt" id="confirmPassword" name="confirmPassword"
+						required />
 
-    <script>
-        // Simulating the email form submission and displaying the password change form
-        function showPasswordForm() {
-            document.getElementById("emailForm").style.display = "none"; // Hide email form
-            document.getElementById("passwordForm").style.display = "block"; // Show password form
-        }
-    </script>
+					<div class="text-center mt-4">
+						<button type="submit" class="btn btn-primary">Change
+							Password</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	</div>
+
+	<script>
+		// Form validation to check if both username and email are provided
+		function validateForm() {
+			var username = document.getElementById("username").value;
+			var email = document.getElementById("email").value;
+
+			if (username === "" || email === "") {
+				alert("Both username and email are required.");
+				return false;
+			}
+
+			return true;
+		}
+
+		// Simulating the email form submission and displaying the password change form
+		function showPasswordForm() {
+			document.getElementById("emailForm").style.display = "none"; // Hide email form
+			document.getElementById("passwordForm").style.display = "block"; // Show password form
+		}
+	</script>
 </body>
 </html>

@@ -10,8 +10,11 @@
 	<div th:replace="fragments/style"></div>
 	<div class="container">
 		<div class="tnt" style="background-color: transparent; border: none;">
-			<i>My Profile Details <img src="/images/profile.png"
+			<i>Member Details <img src="/images/profile.png"
 				class="tnt-icon"></i>
+				<div sec:authorize="isAuthenticated()" class="text-center">
+					<a th:href="@{/pointsRewarded(memberId=${member.id})}" class="btn-add">Reward Activity Points</a>
+				</div>
 			<div class="tnt-row">
 				<div class="card">
 					<p class="card-text">

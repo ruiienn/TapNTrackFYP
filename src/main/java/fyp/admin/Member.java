@@ -11,9 +11,11 @@
  */
 package fyp.admin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -119,5 +121,18 @@ public class Member {
 	public void setPoints(int points) {
 		this.points = points;
 	}
+	
+	
+	@ElementCollection
+	private List<String> history = new ArrayList<>();
+
+	public List<String> getHistory() {
+	    return history;
+	}
+
+	public void addHistoryEntry(String entry) {
+	    this.history.add(entry);
+	}
+
 
 }

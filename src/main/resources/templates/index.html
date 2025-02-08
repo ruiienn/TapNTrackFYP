@@ -96,5 +96,17 @@
 		</div>
 	</div>
 </body>
+<script>
+	function updateLeaderboard() {
+		fetch('/pointsRewarded/getMemberPoints?memberId=' + MEMBER_ID)
+			.then(response => response.json())
+			.then(data => {
+				document.getElementById("totalPoints").textContent = data.totalPoints;
+			});
+	}
+
+	setInterval(updateLeaderboard, 10000); // Refresh leaderboard points every 10 seconds
+</script>
+
 
 </html>

@@ -9,15 +9,18 @@ public class PointsRewarded {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = false) // Ensure the relationship is required
+    @ManyToOne(optional = false) // Ensure this relationship is mandatory
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     private String boothForm;
+
     private String activityForm;
+
     private String pointsRewardedForm;
 
     // Getters and Setters
+ 
     public Integer getId() {
         return id;
     }
@@ -25,6 +28,7 @@ public class PointsRewarded {
     public void setId(Integer id) {
         this.id = id;
     }
+
 
     public Member getMember() {
         return member;

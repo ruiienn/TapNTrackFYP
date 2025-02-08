@@ -15,7 +15,8 @@
 	<div class="container">
 		<div class="tnt">
 			<div class="points-container">
-				<span>My Point(s): <span id="memberPoints"></span></span>
+				<span>My Point(s): <span th:text="${member != null ? member.points : '0'}"></span>
+				</span>
 				<a href="/history"> <img class="icon" src="images/point.png" />
 				</a>
 			</div>

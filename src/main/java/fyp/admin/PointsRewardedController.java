@@ -3,14 +3,11 @@ package fyp.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class PointsRewardedController {
@@ -19,7 +16,7 @@ public class PointsRewardedController {
 	private MemberRepository memberRepository;
 
 	@Autowired
-	private ActivitiesRepository activitiesRepository;
+	private ActivityService activityService;
 
 	@Autowired
 	private PointsRewardedService pointsRewardedService;
@@ -28,65 +25,68 @@ public class PointsRewardedController {
 	private PointsRewardedRepository pointsRewardedRepository;
 
 	@GetMapping("/pointsRewarded")
-	public String showPointsRewardedForm(Model model, Principal principal) {
-		if (principal == null) {
-			return "redirect:/login"; // Redirect to login if not authenticated
+	public String showPointsRewardedForm(@RequestParam(value = "memberId", required = false) Integer memberId,
+			Model model) {
+		if (memberId == null) {
+			model.addAttribute("errorMessage", "Member ID is missing.");
+			return "error"; // Redirect to a generic error page
 		}
 
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
-
+		Member member = memberRepository.findById(memberId).orElse(null);
 		if (member == null) {
-			model.addAttribute("error", "Member not found.");
-			return "error"; // Redirect to an error page if member is null
+			model.addAttribute("errorMessage", "Member not found.");
+			return "error";
 		}
-
-		// Fetch activities with booth information
-		List<Activities> activitiesList = activitiesRepository.findAll();
 
 		PointsRewarded pointsRewarded = new PointsRewarded();
-		pointsRewarded.setMember(member);
+		pointsRewarded.setMember(member); // Set the member in PointsRewarded
 
+		model.addAttribute("member", member);
 		model.addAttribute("pointsRewarded", pointsRewarded);
-		model.addAttribute("activitiesList", activitiesList); // Ensure booth info is included
 
-		return "pointsRewarded";
-	}
+		List<Activities> activities = activityService.getAllActivities();
+		model.addAttribute("activitiesList", activities);
 
-	@GetMapping("/pointsRewarded/save")
-	public String redirectToPointsHistory() {
-		// Redirect to the points history page
-		return "redirect:/history"; // Replace with the actual mapping for your points history page
+		return "pointsRewarded"; // Render the pointsRewarded.html template
 	}
 
 	@PostMapping("/pointsRewarded/save")
-	public String savePointsRewarded(@ModelAttribute PointsRewarded pointsRewarded, Model model, Principal principal) {
-		// Ensure the Principal (authenticated user) is available
-		if (principal == null) {
-			throw new IllegalArgumentException("User not authenticated");
+	public String savePoints(@ModelAttribute PointsRewarded pointsRewarded, RedirectAttributes redirectAttributes) {
+		Member member = pointsRewarded.getMember();
+		if (member != null) {
+			Member existingMember = memberRepository.findById(member.getId()).orElse(null);
+
+			if (existingMember == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Member not found.");
+				return "redirect:/history";
+			}
+
+			try {
+				int additionalPoints = Integer.parseInt(pointsRewarded.getPointsRewardedForm());
+
+				// Update the member's points
+				existingMember.setPoints(existingMember.getPoints() + additionalPoints);
+
+				// Save the updated member
+				memberRepository.save(existingMember);
+
+				// Add success message
+				redirectAttributes.addFlashAttribute("successMessage", "Points rewarded successfully!");
+			} catch (NumberFormatException e) {
+				// Handle invalid input for points
+				redirectAttributes.addFlashAttribute("errorMessage",
+						"Invalid points value. Please enter a valid number.");
+			}
+		} else {
+			// Handle invalid or missing member details
+			redirectAttributes.addFlashAttribute("errorMessage", "Invalid member details. Please try again.");
 		}
 
-		String username = principal.getName();
-		Member member = memberRepository.findByUsername(username);
+		// Redirect back to the history page
+		return "redirect:/members";
 
-		if (member == null) {
-			throw new IllegalArgumentException("Member not found");
-		}
-
-		pointsRewarded.setMember(member);
-
-		// Validate PointsRewarded object fields
-		if (pointsRewarded.getActivityForm() == null || pointsRewarded.getBoothForm() == null
-				|| pointsRewarded.getPointsRewardedForm() == null) {
-			throw new IllegalArgumentException("PointsRewarded object is invalid");
-		}
-
-		pointsRewardedService.save(pointsRewarded);
-
-		model.addAttribute("successMessage", "Points rewarded entry saved successfully");
-		return "redirect:/history";
 	}
-
+	
 	@GetMapping("/history")
 	public String showHistoryPage(Model model, Principal principal) {
 		String username = principal.getName();
@@ -107,5 +107,5 @@ public class PointsRewardedController {
 
 		return "history"; // Return the correct template
 	}
-
+	
 }

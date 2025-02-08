@@ -78,7 +78,8 @@ public class MemberController {
 		Member savedMember = memberRepository.save(member);
 
 		// Generate Unique Link with Correct Member ID
-		String uniqueLink = "https://tapntrackfyp.onrender.com/pointsrewarded/form/" + savedMember.getId();
+//		String uniqueLink = "https://tapntrackfyp.onrender.com/members/" + savedMember.getId() + "/addPoints";
+		String uniqueLink = "https://tapntrackfyp.onrender.com/members/" + savedMember.getId();
 
 		model.addAttribute("uniqueLink", uniqueLink);
 		model.addAttribute("success", "Member successfully added!");
@@ -150,36 +151,58 @@ public class MemberController {
 		return "redirect:/profile";
 	}
 
-	// Admin-Only Access to Points Reward Form
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping("/pointsrewarded/form/{id}")
-	public String showPointsRewardForm(@PathVariable("id") Integer id, Model model) {
-		Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
+//	// Admin-Only Access to Points Reward Form
+//	@PreAuthorize("hasRole('ROLE_ADMIN')")
+//	@GetMapping("/pointsrewarded/form/{id}")
+//	public String showPointsRewardForm(@PathVariable("id") Integer id, Model model) {
+//		Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
+//
+//		model.addAttribute("member", member);
+//		return "pointsRewarded";
+//	}
+//
+//	// Process Points Reward (Ensure Correct Member)
+//	@PreAuthorize("hasRole('ROLE_ADMIN')")
+//	@PostMapping("/pointsrewarded/form/{id}")
+//	public String addPoints(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes,
+//			Principal principal) {
+//		try {
+//			memberService.addPoints(id, 10);
+//			redirectAttributes.addFlashAttribute("success", "10 points added successfully!");
+//		} catch (RuntimeException e) {
+//			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+//		}
+//		return "redirect:/members";
+//	}
 
-		model.addAttribute("member", member);
-		return "pointsRewarded";
-	}
-
-	// Process Points Reward (Ensure Correct Member)
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@PostMapping("/pointsrewarded/form/{id}")
-	public String addPoints(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes,
-			Principal principal) {
+//	// Prevent Regular Users from Accessing This Page
+//	@PreAuthorize("hasRole('ROLE_ADMIN')")
+//	@GetMapping("/pointsrewarded/{id}")
+//	public String rewardPointsPage(@PathVariable("id") Integer id, Model model) {
+//		Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
+//		model.addAttribute("member", member);
+//		return "pointsRewarded";
+//	}
+	
+	@PostMapping("/members/{id}/addPoints")
+	public String addPointsAndRedirect(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
 		try {
-			memberService.addPoints(id, 10);
-			redirectAttributes.addFlashAttribute("success", "10 points added successfully!");
+			memberService.addPoints(id, 10); // Add 10 points to the user
+			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
 		} catch (RuntimeException e) {
 			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
 		}
-		return "redirect:/members";
+		return "redirect:/members"; // Redirect to the leaderboard
 	}
-
-	// Prevent Regular Users from Accessing This Page
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping("/pointsrewarded/{id}")
-	public String rewardPointsPage(@PathVariable("id") Integer id, Model model) {
-		Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
-		model.addAttribute("member", member);
-		return "pointsRewarded";
+	
+	@GetMapping("/members/{id}/addPoints")
+	public String addPointsViaGet(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+		try {
+			memberService.addPoints(id, 10); // Add 10 points to the user
+			redirectAttributes.addFlashAttribute("success", "Points added successfully!");
+		} catch (RuntimeException e) {
+			redirectAttributes.addFlashAttribute("error", "Failed to add points: " + e.getMessage());
+		}
+		return "redirect:/members"; // Redirect to the leaderboard
 	}
 }
