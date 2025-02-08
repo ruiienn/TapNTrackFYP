@@ -86,7 +86,7 @@ public class PointsRewardedController {
 		return "redirect:/members";
 
 	}
-	
+
 	@GetMapping("/history")
 	public String showHistoryPage(Model model, Principal principal) {
 		String username = principal.getName();
@@ -107,5 +107,5 @@ public class PointsRewardedController {
 
 		return "history"; // Return the correct template
 	}
-	
+
 }

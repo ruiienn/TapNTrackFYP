@@ -1,29 +1,19 @@
-/**
- * 
- * I declare that this code was written by me, ${user}. 
- * I will not copy or allow others to copy my code. 
- * I understand that copying code is considered as plagiarism.
- * 
- * Student Name: 
- * Student ID: 
- * Date created: ${id:date('YYYY-MMM-dd')} ${time} 
- * 
- */
-
 package fyp.admin;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RewardsRepository extends JpaRepository<Rewards, Integer>{
-	public Rewards findById(int rewardsId);
+public interface RewardsRepository extends JpaRepository<Rewards, Integer> {
+    List<Rewards> findAllByOrderByPointsRequiredAsc();
 
-	List<Rewards> findAllByOrderByPointsRequiredAsc();
+    List<Rewards> findAllByOrderByPointsRequiredDesc();
 
-	List<Rewards> findAllByOrderByPointsRequiredDesc();
-	
-	Rewards findByDescription(String description);
+    Rewards findByDescription(String description);
+
+    // Custom findById method that directly returns Rewards instead of Optional<Rewards>
+    Rewards findById(int rewardsId);
 }

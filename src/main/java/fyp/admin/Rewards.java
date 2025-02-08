@@ -92,4 +92,5 @@ public class Rewards {
 	public void setImgName(String imgName) {
 		this.imgName = imgName;
 	}
+
 }

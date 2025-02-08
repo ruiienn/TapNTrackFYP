@@ -35,4 +35,13 @@ public class PointsRewardedService {
 
         pointsRewardedRepository.save(pointsRewarded);
     }
+    
+    public void savePointsRewarded(PointsRewarded pointsRewarded) {
+        pointsRewardedRepository.save(pointsRewarded);
+    }
+    
+    // New method to fetch points history for a member
+    public List<PointsRewarded> getMemberPointsHistory(Member member) {
+        return pointsRewardedRepository.findByMember(member);
+    }
 }

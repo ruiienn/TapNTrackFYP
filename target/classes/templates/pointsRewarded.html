@@ -32,7 +32,7 @@
 		<h1>Add Points Rewarded</h1>
 		<form id="addPointsForm" th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
 			<!-- Hidden input for member ID -->
-			<input type="hidden" th:field="*{member.id}" />
+			<input type="hidden" id="memberId" th:field="*{member.id}" />
 
 			<!-- Display member details -->
 			<p>Member: <span th:text="${pointsRewarded.member != null ? pointsRewarded.member.username : 'N/A'}"></span>
@@ -44,8 +44,7 @@
 				<option value="" disabled selected>Select activity</option>
 				<option th:each="activity : ${activitiesList}" th:value="${activity.id}"
 					th:data-points="${activity.pointsRewarded}" th:data-booths="${activity.booth}"
-					th:text="${activity.activity}">
-				</option>
+					th:text="${activity.activity}"></option>
 			</select>
 
 			<!-- Booth selection -->
@@ -66,7 +65,7 @@
 
 		<div class="popup" id="popup">
 			<p>Activity added successfully!</p>
-			<p>Redirecting to the history page...</p>
+			<p>Redirecting to the index page...</p>
 		</div>
 	</div>
 
@@ -75,12 +74,16 @@
 			const activityDropdown = document.getElementById('activityDropdown');
 			const boothDropdown = document.getElementById('boothDropdown');
 			const pointsDropdown = document.getElementById('pointsDropdown');
+			const form = document.getElementById('addPointsForm');
+			const popup = document.getElementById('popup');
 
+			// Handle dropdown selection for booth and points
 			activityDropdown.addEventListener('change', function () {
 				const selectedOption = this.options[this.selectedIndex];
 				const points = selectedOption.getAttribute('data-points');
 				const booths = selectedOption.getAttribute('data-booths');
 
+				// Prevent duplicate points selection
 				pointsDropdown.innerHTML = '<option value="" disabled selected>Select points</option>';
 				if (points) {
 					const option = document.createElement('option');
@@ -89,6 +92,7 @@
 					pointsDropdown.appendChild(option);
 				}
 
+				// Prevent duplicate booth selection
 				boothDropdown.innerHTML = '<option value="" disabled selected>Select booth</option>';
 				if (booths) {
 					const boothList = booths.split(',');
@@ -101,10 +105,21 @@
 				}
 			});
 
-			document.getElementById('addPointsForm').addEventListener('submit', function (event) {
-				event.preventDefault();
+			// Prevent duplicate form submission
+			let formSubmitted = false;
+			form.addEventListener('submit', function (event) {
+				event.preventDefault(); // Prevent default form submission
+
+				// Ensure the form is not submitted multiple times
+				if (formSubmitted) {
+					alert("Points already being processed. Please wait.");
+					return;
+				}
+				formSubmitted = true;
 
 				const formData = new FormData(this);
+				const memberId = document.getElementById('memberId').value; // Get the memberId correctly
+
 
 				fetch(this.action, {
 					method: 'POST',
@@ -113,47 +128,36 @@
 					.then(response => response.json())
 					.then(data => {
 						if (data.success) {
-							popup.classList.add('active');
-							updatePoints(); // Update points dynamically
-							setTimeout(() => window.location.href = '/history', 2000);
+							popup.classList.add('active'); // Show popup
+							updatePoints(); // Dynamically update points
+							setTimeout(() => {
+								window.location.href = '/history?memberId=' + memberId; // Redirect to history
+							}, 2000);
 						} else {
 							alert('Failed to reward points. Please try again.');
+							formSubmitted = false; // Reset form submission status
 						}
 					})
-					.catch(error => console.error('Error:', error));
-			});
-		});
-
-		function updatePoints() {
-			fetch('/api/member/points')
-				.then(response => response.json())
-				.then(points => {
-					document.querySelectorAll('.points-container span, #points-display').forEach(el => {
-						el.textContent = points;
+					.catch(error => {
+						console.error('Error:', error);
+						formSubmitted = false;
 					});
-				})
-				.catch(error => console.error('Error fetching points:', error));
-		}
-	</script>
-	<!-- Popup Handling -->
-	<script>
-		const form = document.getElementById('addPointsForm');
-		const popup = document.getElementById('popup');
+			});
 
-		form.addEventListener('submit', function (event) {
-			// Prevent the default form submission
-			event.preventDefault();
-
-			// Show the popup
-			popup.classList.add('active');
-
-			// Wait for 2 seconds, then submit the form and redirect
-			setTimeout(() => {
-				form.submit();
-			}, 2000);
+			// Update points dynamically
+			function updatePoints() {
+				fetch('/api/member/points')
+					.then(response => response.json())
+					.then(points => {
+						document.querySelectorAll('.points-container span, #points-display').forEach(el => {
+							el.textContent = points;
+						});
+					})
+					.catch(error => console.error('Error fetching points:', error));
+			}
 		});
 	</script>
-
 </body>
 
 </html>
+

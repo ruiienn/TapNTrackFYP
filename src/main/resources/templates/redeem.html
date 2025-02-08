@@ -47,11 +47,10 @@
 					<h5>Total Points Used for Redeeming Rewards: <span th:text="${totalPoints}"></span> <img
 							class="icon" src="images/point.png" /></h5>
 				</div>
-
 				<div id="overflow">
 					<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
 						<div class="row">
-							<div th:each="reward : ${redeemedRewards}" class="reward">
+							<div th:each="reward : ${redeemedRewards}" class="reward col-md-4">
 								<div class="card">
 									<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
 										alt="Reward Image" class="card-img-top reward-image">
@@ -60,17 +59,14 @@
 										<p class="card-text">
 											<strong>Amount of Points Used:</strong> <span
 												th:text="${reward.memberPoints}"></span> points<br>
-											<strong>Redeemed On:</strong> <span th:text="${reward.redeemedDate}"></span>
+											<strong>Redeemed On:</strong> <span
+												th:text="${#dates.format(reward.redeemedDate, 'yyyy-MM-dd')}"></span>
 										</p>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-
-				<div th:if="${redeemedRewards == null or redeemedRewards.isEmpty()}">
-					<p class="text-center">You have not redeemed any rewards yet.</p>
 				</div>
 			</div>
 		</div>
@@ -82,9 +78,9 @@
 	function updatePoints() {
 		fetch('/api/member/points')
 			.then(response => response.json())
-			.then(points => {
+			.then(data => {
 				// Update the points in the points container
-				document.getElementById('memberPoints').textContent = points;
+				document.getElementById('points-display').textContent = `My Point(s): ${data}`;
 			})
 			.catch(error => console.error('Error fetching points:', error));
 	}
@@ -94,6 +90,47 @@
 
 	// Periodic update every 30 seconds
 	setInterval(updatePoints, 30000);
+
+	// Function to dynamically update redeemed rewards
+	function updateRedeemedRewards() {
+		fetch('/api/member/redeemedRewards')
+			.then(response => response.json())
+			.then(data => {
+				// Update redeemed rewards dynamically
+				const redeemedContainer = document.getElementById('overflow');
+				redeemedContainer.innerHTML = '';
+
+				if (data && data.length > 0) {
+					data.forEach(reward => {
+						const rewardCard = `
+							<div class="reward col-md-4">
+								<div class="card">
+									<img src="/uploads/rewards/${reward.rewardsId}/${reward.imgName}" alt="Reward Image"
+										class="card-img-top reward-image">
+									<div class="card-body">
+										<h5 class="card-title">${reward.description}</h5>
+										<p class="card-text">
+											<strong>Amount of Points Used:</strong> ${reward.pointsUsed} points<br>
+											<strong>Redeemed On:</strong> ${reward.redeemedDate}
+										</p>
+									</div>
+								</div>
+							</div>
+						`;
+						redeemedContainer.innerHTML += rewardCard;
+					});
+				} else {
+					redeemedContainer.innerHTML = `<p class="text-center">You have not redeemed any rewards yet.</p>`;
+				}
+			})
+			.catch(error => console.error('Error fetching redeemed rewards:', error));
+	}
+
+	// Periodically update redeemed rewards every 30 seconds
+	setInterval(updateRedeemedRewards, 30000);
+
+	// Initial update for redeemed rewards
+	updateRedeemedRewards();
 </script>
 
 </html>

@@ -73,11 +73,14 @@
 								Status: <span th:text="${reward.status}"></span>
 							</p>
 							<div>
-								<a th:if="${reward.quantity > 0 && reward.status == 'Available'}"
+								<!-- Redeem Button -->
+								<a th:if="${reward.quantity > 0}"
 									th:href="@{/redeem/process/{rewardsId}(rewardsId=${reward.rewardsId})}"
-									onclick="return validateRedemption()" class="btn-rewards">Redeem</a>
-								<button th:if="${reward.quantity == 0 || reward.status != 'Available'}"
-									onclick="alertUnavailable()" class="btn-rewards btn-disabled">Redeem</button>
+									onclick="return confirm('Are you sure you want to redeem this reward?');"
+									class="btn btn-primary">Redeem</a>
+								<!-- Disabled Button -->
+								<button th:if="${reward.quantity <= 0}" class="btn btn-secondary" disabled>Not
+									Available</button>
 							</div>
 
 							<div class="end">
@@ -89,10 +92,11 @@
 								</div>
 							</div>
 						</div>
-
 					</div>
 				</div>
 			</div>
+
+
 		</div>
 	</div>
 	</div>
@@ -124,17 +128,16 @@
 
 		function validateRedemption() {
 			const redeemedToday = parseInt(document.body.getAttribute('data-redeemed-today')) || 0;
-
 			const maxRedemptionsPerDay = 3;
 
 			if (redeemedToday >= maxRedemptionsPerDay) {
 				alert('You have reached the maximum redemption limit of 3 rewards per day.');
-				window.location.href = '/rewards'; // Redirect back to the rewards page
-				return false;
+				return false; // Prevent redirection
 			}
 
 			return confirm('Are you sure you want to redeem this reward?');
 		}
+
 
 		function alertUnavailable() {
 			alert('This reward is unavailable or out of stock. Please try again later.');

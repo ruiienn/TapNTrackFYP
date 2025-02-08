@@ -56,10 +56,9 @@ public class RewardsController {
 
 	@Autowired
 	private MemberService memberService;
-	
+
 	@Autowired
 	private PointsRewardedService pointsRewardedService;
-
 
 	@GetMapping("/rewards")
 	public String viewRewards(@RequestParam(value = "filter", required = false) String filter, Model model,
@@ -135,24 +134,23 @@ public class RewardsController {
 
 	@GetMapping("/redeem")
 	public String showRedeemPage(Model model, Principal principal) {
-	    // Ensure the user is authenticated
-	    String username = principal.getName();
-	    Member member = memberRepository.findByUsername(username);
+		// Ensure the user is authenticated
+		String username = principal.getName();
+		Member member = memberRepository.findByUsername(username);
 
-	    // Handle the case where the member does not exist
-	    if (member == null) {
-	        model.addAttribute("error", "Member not found.");
-	        return "error"; // Redirect to an error page
-	    }
+		// Handle the case where the member does not exist
+		if (member == null) {
+			model.addAttribute("error", "Member not found.");
+			return "error"; // Redirect to an error page
+		}
 
-	    // Calculate total points and add it to the model
-	    Integer totalPoints = pointsRewardedService.calculateTotalPoints(member);
-	    model.addAttribute("memberPoints", totalPoints != null ? totalPoints : 0);
+		// Calculate total points and add it to the model
+		Integer totalPoints = pointsRewardedService.calculateTotalPoints(member);
+		model.addAttribute("memberPoints", totalPoints != null ? totalPoints : 0);
 
-	    // Return the redeem page
-	    return "redeem";
+		// Return the redeem page
+		return "redeem";
 	}
-
 
 //	@GetMapping("/redeem")
 //	public String redeem(Model model, Principal principal) {
@@ -273,52 +271,59 @@ public class RewardsController {
 
 	@GetMapping("/redeem/process/{rewardsId}")
 	public String processRedemption(@PathVariable int rewardsId, Model model, Principal principal) {
-		String username = principal.getName();
+	    // Fetch user details
+	    String username = principal.getName();
+	    Member member = memberRepository.findByUsername(username);
 
-		Member member = memberRepository.findByUsername(username);
-		if (member == null) {
-			model.addAttribute("error", "Member not found.");
-			return "redirect:/rewards";
-		}
+	    if (member == null) {
+	        model.addAttribute("error", "Member not found.");
+	        return "redirect:/rewards";
+	    }
 
-		Rewards rewards = rewardsRepository.findById(rewardsId);
-		if (rewards == null) {
-			model.addAttribute("error", "Reward not found.");
-			return "redirect:/rewards";
-		}
+	    // Fetch the reward
+	    Rewards rewards = rewardsRepository.findById(rewardsId);
+	    if (rewards == null) {
+	        model.addAttribute("error", "Reward not found.");
+	        return "redirect:/rewards";
+	    }
 
-		// Logic from the first method: Check reward availability and daily limit
-		if (rewards.getQuantity() <= 0 || !"Available".equals(rewards.getStatus())) {
-			model.addAttribute("error", "This reward is unavailable or out of stock.");
-			return "redirect:/rewards";
-		}
+	    // Check if the reward is redeemable
+	    if (rewards.getQuantity() <= 0 || !"Available".equals(rewards.getStatus())) {
+	        model.addAttribute("error", "This reward is unavailable or out of stock.");
+	        return "redirect:/rewards";
+	    }
 
-		int redeemedToday = memberRewardsRepository.countByMemberAndRedeemedDate(member, LocalDate.now());
-		if (redeemedToday >= 3) {
-			model.addAttribute("error", "You have reached the maximum redemption limit of 3 rewards per day.");
-			return "redirect:/rewards";
-		}
+	    int redeemedToday = memberRewardsRepository.countByMemberAndRedeemedDate(member, LocalDate.now());
+	    if (redeemedToday >= 3) {
+	        model.addAttribute("error", "You have reached the maximum redemption limit of 3 rewards per day.");
+	        return "redirect:/rewards";
+	    }
 
-		// Logic from the second method: Check points and process redemption
-		if (member.getPoints() >= rewards.getPointsRequired() && rewards.getQuantity() > 0) {
-			member.setPoints(member.getPoints() - rewards.getPointsRequired());
-			rewards.setQuantity(rewards.getQuantity() - 1);
+	    // Redeem the reward
+	    if (member.getPoints() >= rewards.getPointsRequired() && rewards.getQuantity() > 0) {
+	        member.setPoints(member.getPoints() - rewards.getPointsRequired());
+	        rewards.setQuantity(rewards.getQuantity() - 1);
 
-			MemberRewards memberRewards = new MemberRewards();
-			memberRewards.setMember(member);
-			memberRewards.setRewards(rewards);
-			memberRewards.setMemberPoints(rewards.getPointsRequired());
-			memberRewards.setRedeemedQty(1);
-			memberRewards.setRedeemedDate(LocalDate.now());
+	        if (rewards.getQuantity() == 0) {
+	            rewards.setStatus("Not Available");
+	        }
 
-			memberRewardsService.save(memberRewards);
-			memberDetailsService.save(member);
-			rewardsRepository.save(rewards);
+	        MemberRewards memberRewards = new MemberRewards();
+	        memberRewards.setMember(member);
+	        memberRewards.setRewards(rewards);
+	        memberRewards.setMemberPoints(rewards.getPointsRequired());
+	        memberRewards.setRedeemedQty(1);
+	        memberRewards.setRedeemedDate(LocalDate.now());
 
-			return "redirect:/redeem";
-		} else {
-			model.addAttribute("error", "Insufficient points or reward out of stock.");
-			return "redirect:/rewards";
-		}
+	        memberRewardsService.save(memberRewards);
+	        memberDetailsService.save(member);
+	        rewardsRepository.save(rewards);
+
+	        System.out.println("Reward successfully redeemed.");
+	        return "redirect:/redeem";
+	    } else {
+	        model.addAttribute("error", "Insufficient points or reward out of stock.");
+	        return "redirect:/rewards";
+	    }
 	}
 }
