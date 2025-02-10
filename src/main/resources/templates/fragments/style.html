@@ -122,6 +122,14 @@ body {
 	margin-bottom: 20px;
 }
 
+@media ( max-width : 600px) {
+	.logo {
+		width: 70px;
+		height: 70px;
+		margin-bottom: 10px;
+	}
+}
+
 .visitor {
 	background-color: #5184bf;
 	color: white;
@@ -135,15 +143,6 @@ body {
 .visitor:hover {
 	background-color: #E6E2D5;
 	color: #5184bf;
-}
-
-
-@media ( max-width : 600px) {
-	.logo {
-		width: 70px; 
-		height: 70px;
-		margin-bottom: 10px; 
-	}
 }
 
 /* Main Content Container*/
@@ -216,7 +215,7 @@ body {
 }
 
 .card:hover {
-	background-color: #d9eee9;
+	background-color: #f4faf9;
 }
 
 .card-img {
@@ -232,6 +231,28 @@ body {
 	text-decoration: none;
 	color: black;
 }
+/* Profile CSS*/
+.profile {
+	background-color: #b4a597;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	max-width: 300px;
+	width: 100%;
+	padding: 20px;
+	border-radius: 20px;
+	text-align: left;
+	display: table;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 1;
+	text-decoration: none;
+	color: black;
+}
+
+.profile:hover {
+	background-color: #e1dbd5;
+}
+
 /* Button CSS */
 .btn {
 	background-color: #5184bf;
@@ -243,6 +264,7 @@ body {
 	bottom: 10px;
 	margin-top: 20px;
 	font-size: 20px;
+	display: inline-flex;
 }
 
 .btn:hover {
@@ -256,7 +278,7 @@ body {
 	padding: 10px 20px;
 	border-radius: 5px;
 	text-decoration: none;
-	display: inline-block;
+	display: inline-flex;
 	margin: 10px auto;
 }
 
@@ -276,11 +298,26 @@ body {
 	text-decoration: none;
 	align-items: center;
 	justify-content: center;
+	display: inline-flex;
 }
 
 .btn-member:hover {
 	background-color: #E6E2D5;
 	color: #5184bf;
+}
+
+.point-add {
+	background-color: #69d2b9;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 5px;
+	text-decoration: none;
+	display: inline-flex;
+	margin: 10px auto;
+}
+
+.point-add:hover {
+	background-color: #E6E2D5;
 }
 
 /* Form Labels */
@@ -407,10 +444,9 @@ body {
 	border-radius: 5px;
 	width: 230px;
 }
-
 </style>
 </head>
-<header>
+<body>
 	<!-- Back to Top button -->
 	<button onclick="topFunction()" id="myBtn" title="Go to top">
 		<img src="images/top.png" alt="Top" style="width: 20px; height: 20px;">
@@ -433,10 +469,10 @@ body {
 		</a> -->
 		<!-- Points History -->
 		<div sec:authorize="hasRole('ROLE_USER')">
-		<a href="/history" target="_self" > <img class="icon"
-			th:src="@{/images/history.png}" /> <span class="text">Points
-				History</span>
-		</a>
+			<a href="/history" target="_self"> <img class="icon"
+				th:src="@{/images/history.png}" /> <span class="text">Points
+					History</span>
+			</a>
 		</div>
 		<!-- Rewards -->
 		<a href="/rewards" target="_self"> <img class="icon"
@@ -532,5 +568,5 @@ body {
 			});
 		}
 	</script>
-</header>
+</body>
 

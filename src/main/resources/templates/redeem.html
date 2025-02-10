@@ -11,7 +11,7 @@
 
 <body>
 	<div th:replace="fragments/style"></div>
-	<div th:replace="fragments/redeem_style"></div>
+	<div th:replace="fragments/rewards_style"></div>
 	<div class="container">
 		<h2 class="text-center mb-4" style="font-weight: bold;">Rewards Redeemed</h2>
 		<div class="tnt">
@@ -50,7 +50,7 @@
 			<div th:if="${redeemedRewards != null and !redeemedRewards.isEmpty()}">
 				<div class="row">
 					<div th:each="reward : ${redeemedRewards}" class="col-md-4 mb-4">
-						<div class="card">
+						<div class="reward">
 							<img th:src="@{'/uploads/rewards/' + ${reward.rewards.rewardsId} + '/' + ${reward.rewards.imgName}}"
 								alt="Reward Image" class="card-img-top reward-image">
 
