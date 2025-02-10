@@ -77,6 +77,12 @@
 			const form = document.getElementById('addPointsForm');
 			const popup = document.getElementById('popup');
 
+			if (activityDropdown.options.length === 2) {
+				// If only one activity is available (one option + placeholder)
+				activityDropdown.selectedIndex = 0; // Select the first activity
+				populateBoothAndPoints(activityDropdown.options[1]); // Populate based on the only activity
+			}
+
 			// Handle dropdown selection for booth and points
 			activityDropdown.addEventListener('change', function () {
 				const selectedOption = this.options[this.selectedIndex];
@@ -102,20 +108,34 @@
 						option.textContent = booth;
 						boothDropdown.appendChild(option);
 					});
-				}
-			});
 
-			// Update points dynamically
-			function updatePoints() {
-				fetch('/api/member/points')
-					.then(response => response.json())
-					.then(points => {
-						document.querySelectorAll('.points-container span, #points-display').forEach(el => {
-							el.textContent = points;
-						});
-					})
-					.catch(error => console.error('Error fetching points:', error));
+            // Optionally pre-select the first booth and points
+            if (boothDropdown.options.length > 1) {
+						boothDropdown.selectedIndex = 1;
+					}
+					if (pointsDropdown.options.length > 1) {
+						pointsDropdown.selectedIndex = 1;
+					}
+				}
+
+			// Optional: Automatically trigger change event if there's only one activity on page load
+			if (activityDropdown.options.length === 2) {
+				activityDropdown.selectedIndex = 1;
+				activityDropdown.dispatchEvent(new Event('change'));
 			}
+		});
+
+		// Update points dynamically
+		function updatePoints() {
+			fetch('/api/member/points')
+				.then(response => response.json())
+				.then(points => {
+					document.querySelectorAll('.points-container span, #points-display').forEach(el => {
+						el.textContent = points;
+					});
+				})
+				.catch(error => console.error('Error fetching points:', error));
+		}
 		});
 	</script>
 

@@ -42,8 +42,9 @@
 						<label for="email" class="label-tnt">Email:</label> <input type="text" id="email"
 							class="input-tnt" th:field="*{email}" />
 					</div>
-					<div sec:authorize="hasRole('ROLE_ADMIN')"> <label for="points" class="label-tnt">Points:</label>
-						<input type="number" id="points" class="input-tnt" th:field="*{points}" />
+					<div> 
+						<label for="points" class="label-tnt">Points:</label>
+						<input type="number" id="points" class="input-tnt" th:field="*{points}" readonly />
 					</div>
 
 					<button type="submit" class="btn">Save Changes</button>

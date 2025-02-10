@@ -36,7 +36,7 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
 				.requestMatchers("/rewards/add", "/rewards/edit/*", "/rewards/delete/*", "/rewards/save",
 						"/activities/add", "/activities/edit/*", "/activities/delete/*", "/activities/save", "/members",
-						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save", "/login")
+						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save", "/login", "/pointsRewarded")
 				.hasRole("ADMIN")
 				.requestMatchers("/", "/leaderboard", "/history", "/rewards", "/activities", "/more", "/avatar",
 						"/profile", "/guide", "/feedback", "/forget", "/changePassword", "/sendOtp", "/verifyOtp",
