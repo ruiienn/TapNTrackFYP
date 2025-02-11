@@ -47,7 +47,7 @@
 			<!-- Display Rewards with Redeem Option -->
 			<div id="overflow">
 				<div class="tnt-row">
-					<div class="card" th:each="reward : ${listRewards}">
+					<div class="reward" th:each="reward : ${listRewards}">
 						<img th:src="@{'/uploads/rewards/' + ${reward.rewardsId} + '/' + ${reward.imgName}}"
 							class="card-img">
 						<div>

@@ -29,7 +29,8 @@
 	<div th:replace="fragments/style"></div>
 
 	<div class="container">
-		<h1>Add Points Rewarded</h1>
+		<i style="margin-top: 35px;"> Points Rewarded <img
+				src="/images/point.png" class="tnt-icon"></i>
 		<form id="addPointsForm" th:action="@{/pointsRewarded/save}" th:object="${pointsRewarded}" method="post">
 			<!-- Hidden input for member ID -->
 			<input type="hidden" id="memberId" th:field="*{member.id}" />
@@ -39,7 +40,7 @@
 			</p>
 
 			<!-- Activity selection -->
-			<label>Activity:</label>
+			<label class="label-tnt">Activity:</label>
 			<select id="activityDropdown" th:field="*{activityForm}" required>
 				<option value="" disabled selected>Select activity</option>
 				<option th:each="activity : ${activitiesList}" th:value="${activity.id}"
@@ -48,13 +49,13 @@
 			</select>
 
 			<!-- Booth selection -->
-			<label>Booth:</label>
+			<label class="label-tnt">Booth:</label>
 			<select id="boothDropdown" th:field="*{boothForm}" required>
 				<option value="" disabled selected>Select booth</option>
 			</select>
 
 			<!-- Points selection -->
-			<label>Points:</label>
+			<label class="label-tnt">Points:</label>
 			<select id="pointsDropdown" th:field="*{pointsRewardedForm}" required>
 				<option value="" disabled selected>Select points</option>
 			</select>
