@@ -36,17 +36,13 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
 				.requestMatchers("/rewards/add", "/rewards/edit/*", "/rewards/delete/*", "/rewards/save",
 						"/activities/add", "/activities/edit/*", "/activities/delete/*", "/activities/save", "/members",
-						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save", "/login", "/pointsRewarded")
+						"/members/add", "/members/edit/*", "/members/delete/*", "/members/save", "/login",
+						"/pointsRewarded")
 				.hasRole("ADMIN")
 				.requestMatchers("/", "/leaderboard", "/history", "/rewards", "/activities", "/more", "/avatar",
 						"/profile", "/guide", "/feedback", "/forget", "/changePassword", "/sendOtp", "/verifyOtp",
 						"/images/*")
-				.permitAll() // Home page is visible without logging in
-				.requestMatchers("/bootstrap/*/*").permitAll() // for static resources, visible to all
-				.requestMatchers("/images/**").permitAll() // for static resources, visible to all
-				.requestMatchers("/uploads/**").permitAll()// for upload images, visible to all
-				.requestMatchers("/avatar/**").permitAll()// for avatar images, visible to all
-				.anyRequest().authenticated())
+				.permitAll().anyRequest().authenticated())
 				.formLogin((login) -> login.loginPage("/login").permitAll().defaultSuccessUrl("/", true)
 						.failureUrl("/login?error=true")) // Ensures error is passed correctly
 				.logout((logout) -> logout.logoutSuccessUrl("/"))
@@ -54,6 +50,5 @@ public class WebSecurityConfig {
 
 		return http.build();
 	}
+
 }
-
-

@@ -13,7 +13,8 @@ package fyp.admin;
 
 import java.util.Arrays;
 import java.util.Collection;
-
+import java.util.List;
+import java.util.ArrayList;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,9 +34,21 @@ public class MemberDetails implements UserDetails{
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(member.getRole());
-		return Arrays.asList(authority);
+	    List<GrantedAuthority> authorities = new ArrayList<>();
+	    
+	    // Assuming Member has a getRole() method that returns the role of the user.
+	    String role = member.getRole();  // Use the appropriate method to get the role
+	    
+	    if (role != null && !role.isEmpty()) {
+	        authorities.add(new SimpleGrantedAuthority(role));
+	    } else {
+	        // Handle case where role is missing
+	        throw new IllegalArgumentException("Role must not be null or empty");
+	    }
+	    
+	    return authorities;
 	}
+
 
 	@Override
 	public String getPassword() {
