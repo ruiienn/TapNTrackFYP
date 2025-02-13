@@ -64,4 +64,8 @@ public class MemberDetailsService implements UserDetailsService {
         }
         return passwordEncoder.matches(password, member.getPassword());
     }
+    
+	public Member save(Member member) {
+		return memberRepository.save(member);
+	}
 }
